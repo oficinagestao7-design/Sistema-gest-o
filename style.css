@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TorquePro - Gestão de Oficinas</title>
+    
+    <meta name="theme-color" content="#1a1a1c" id="meta-theme-color">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="application-name" content="TorquePro">
+    <meta name="apple-mobile-web-app-title" content="TorquePro">
+    <meta name="msapplication-TileImage" content="Icon.jpg">
+    <meta name="msapplication-TileColor" content="#1a1a1c">
+    
+    <link rel="icon" type="image/jpeg" href="Icon.jpg">
+    <link rel="apple-touch-icon" href="Icon.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="Icon.jpg">
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ===== CSS BASE - TEMAS ===== */
+        :root {
+            --bg-color: #1e1e1e; --topbar-bg: #2d2d2d; --card-bg: #3c3c3c;
+            --primary: #f97316; --primary-glow: 0 0 12px rgba(249,115,22,0.3);
+            --accent: #fdba74; --success: #2ecc71; --danger: #ef4444;
+            --text-main: #e0e0e0; --text-muted: #a0a0a0; --border-color: #444444;
+            --card-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.3);
+            --base-font: 13px;
+            --btn-text: #ffffff;
+        }
+        
+        body { 
+            background-color: var(--bg-color); color: var(--text-main); font-size: var(--base-font); 
+            height: 100vh; height: 100dvh; display: flex; flex-direction: column; 
+            overflow: hidden; overscroll-behavior-y: none;
+            transition: background-color 0.4s ease, color 0.4s ease; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        @media (prefers-color-scheme: light) {
+            .tema-sistema { --bg-color: #f4f6f9; --topbar-bg: #ffffff; --card-bg: #ffffff; --primary: #f97316; --primary-glow: 0 0 14px rgba(249,115,22,0.2); --accent: #fdba74; --success: #27ae60; --danger: #ef4444; --text-main: #2c3e50; --text-muted: #7f8c8d; --border-color: #dcdde1; --btn-text: #ffffff; --card-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.08); }
+        }
+        @media (prefers-color-scheme: dark) {
+            .tema-sistema { --bg-color: #121212; --topbar-bg: #1a1a1a; --card-bg: #242424; --primary: #f97316; --primary-glow: 0 0 15px rgba(249,115,22,0.4); --accent: #fdba74; --success: #2ecc71; --danger: #ef4444; --text-main: #ecf0f1; --text-muted: #bdc3c7; --border-color: #34495e; --btn-text: #ffffff; --card-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.3);}
+        }
+        
+        .tema-midnight-rider { --bg-color: #0f172a; --topbar-bg: #020617; --card-bg: #1e293b; --primary: #e11d48; --primary-glow: 0 0 14px rgba(225,29,72,0.4); --accent: #f43f5e; --success: #10b981; --danger: #ef4444; --text-main: #f8fafc; --text-muted: #94a3b8; --border-color: #334155; --card-shadow: 0 8px 16px -4px rgba(0,0,0,0.5); --btn-text: #ffffff; }
+        .tema-vintage-scrambler { --bg-color: #f5f5f4; --topbar-bg: #e7e5e4; --card-bg: #ffffff; --primary: #b45309; --primary-glow: 0 0 14px rgba(180,83,9,0.3); --accent: #d97706; --success: #059669; --danger: #dc2626; --text-main: #292524; --text-muted: #78716c; --border-color: #d6d3d1; --card-shadow: 0 8px 16px -4px rgba(0,0,0,0.1); --btn-text: #ffffff; }
+        .tema-vintage-scrambler .card-item, .tema-vintage-scrambler .history-card { color: #292524; background: #ffffff; border: 1px solid var(--border-color); }
+        .tema-vintage-scrambler .menu-btn { color: #292524; }
+        .tema-vintage-scrambler .menu-btn.active { color: #ffffff; }
+        .tema-chrome-cruiser { --bg-color: #e2e8f0; --topbar-bg: #cbd5e1; --card-bg: #f8fafc; --primary: #475569; --primary-glow: 0 0 14px rgba(71,85,105,0.3); --accent: #64748b; --success: #059669; --danger: #dc2626; --text-main: #0f172a; --text-muted: #475569; --border-color: #94a3b8; --card-shadow: 0 8px 16px -4px rgba(0,0,0,0.15); --btn-text: #ffffff; }
+        .tema-chrome-cruiser .card-item, .tema-chrome-cruiser .history-card { color: #0f172a; background: #f8fafc; border: 1px solid var(--border-color); }
+        .tema-chrome-cruiser .menu-btn { color: #0f172a; }
+        .tema-chrome-cruiser .menu-btn.active { color: #ffffff; }
+        .tema-classic-navy { --bg-color: #f8fafc; --topbar-bg: #ffffff; --card-bg: #ffffff; --primary: #1e3a8a; --primary-glow: 0 0 12px rgba(30,58,138,0.3); --accent: #2563eb; --success: #1e3a8a; --danger: #dc2626; --text-main: #0f172a; --text-muted: #64748b; --border-color: #1e3a8a; --card-shadow: 0 8px 16px -4px rgba(0,0,0,0.1); --btn-text: #ffffff; }
+        .tema-classic-navy .card-item, .tema-classic-navy .history-card { color: #0f172a; background: #ffffff; border: 1px solid var(--border-color); }
+        .tema-classic-navy .menu-btn { color: #0f172a; }
+        .tema-classic-navy .menu-btn.active { color: #ffffff; }
+        .tema-industrial-orange { --bg-color: #374151; --topbar-bg: #1f2937; --card-bg: #4b5563; --primary: #f97316; --primary-glow: 0 0 14px rgba(249,115,22,0.5); --accent: #fb923c; --success: #22c55e; --danger: #ef4444; --text-main: #f3f4f6; --text-muted: #9ca3af; --border-color: #6b7280; --card-shadow: 0 8px 16px -4px rgba(0,0,0,0.3); --btn-text: #ffffff; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px;} h3 { font-size: 16px; font-weight: 600; }
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .view-section { padding: 30px; overflow-y: auto; height: calc(100vh - 60px); animation: fadeIn 0.3s ease-out; padding-bottom: 90px; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
+
+        .btn { padding: 10px 16px; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.25s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; user-select: none;}
+        .btn-primary { background: var(--primary); box-shadow: var(--primary-glow); color: var(--btn-text); font-weight: 700; }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        .btn-success { background: var(--success); color: #fff; font-weight: 700;}
+        .btn-success:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-danger { background: var(--danger); color: #fff; font-weight: 700;}
+        .btn-danger:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--bg-color); border-color: var(--primary); }
+        .btn:active { transform: scale(0.97); }
+
+        input, select, textarea { width: 100%; padding: 12px 14px; margin: 8px 0 16px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-color); color: var(--text-main); transition: all 0.25s; font-size: 14px; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: var(--primary-glow); }
+        textarea { resize: vertical; min-height: 90px; }
+
+        .hint-text { font-size: 11px; color: var(--text-muted); margin-top: -12px; margin-bottom: 12px; display: block; line-height: 1.3;}
+
+        .custom-file-upload { display: flex; width: 100%; padding: 10px; margin: 8px 0 16px; border: 1px dashed var(--primary); border-radius: 10px; background: rgba(0,0,0,0.05); color: var(--primary); text-align: center; cursor: pointer; transition: 0.3s; font-size: 13px; font-weight: 600; min-height: 42px; align-items: center; justify-content: center;}
+        .custom-file-upload:hover { background: rgba(0,0,0,0.1); }
+        input[type="file"] { display: none; }
+
+        /* MODIFICAÇÕES NO LOGIN: GLASSMORPHISM E NEON BRANCO */
+        #login-screen { position: fixed; inset: 0; z-index: 1000; background: radial-gradient(circle at top, #1a202c, #0f172a) !important; display: flex; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;}
+        .login-box { background: rgba(255, 255, 255, 0.08) !important; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 45px 40px; border-radius: 28px; width: 380px; max-width: 100%; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.25); margin: auto; animation: modalPop 0.6s ease; color: #ffffff; }
+        /* Aceleração de hardware e otimização para corrigir stuttering na engrenagem animada */
+        .animated-gear { width: 80px; height: 80px; margin: 0 auto 20px; display: block; color: #ffffff; animation: spin 10s linear infinite; will-change: transform; transform: translateZ(0); }
+        .login-box h3 { color: #ffffff !important; font-size: 24px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .login-box p { color: rgba(255, 255, 255, 0.85) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        
+        #startup-overlay { position: fixed; inset: 0; background: var(--bg-color); z-index: 2000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease, visibility 0.5s; }
+        #startup-overlay.fade-out { opacity: 0; visibility: hidden; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 3000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s ease; padding: 15px;}
+        .modal-overlay.show { opacity: 1; pointer-events: all; }
+        .modal-box { position: relative; background: var(--card-bg); padding: 35px; border-radius: 20px; width: 550px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-color); transform: scale(0.95); transition: 0.3s ease; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch;}
+        
+        .close-modal-x { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #ffffff; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; transition: 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
+        .close-modal-x:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
+
+        .toast-container { position: fixed; bottom: 25px; right: 25px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none;}
+        .toast { background: var(--card-bg); color: var(--text-main); border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); font-size: 14px; font-weight: 600; opacity: 0; transform: translateX(100%); transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275); border: 1px solid var(--border-color); pointer-events: all;}
+        .toast.show { opacity: 1; transform: translateX(0); }
+
+        #tutorial-box { position: fixed; bottom: 85px; right: 25px; background: var(--card-bg); border: 1px solid var(--primary); border-left: 4px solid var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 15px; border-radius: 12px; z-index: 9990; color: var(--text-main); opacity: 0; transform: translateY(20px); transition: 0.4s ease; display: none; width: 320px;}
+        #tutorial-box.show { opacity: 1; transform: translateY(0); }
+
+        .gdrive-sync-icon { position: fixed; bottom: 25px; left: 50%; margin-left: -25px; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 9998; transform: translateY(150px); opacity: 0; transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275); box-shadow: 0 5px 15px rgba(0,0,0,0.3); background: var(--card-bg); pointer-events: none; }
+        .gdrive-sync-icon.show { transform: translateY(0); opacity: 1; }
+        .gdrive-sync-icon::before { content: ''; position: absolute; inset: -3px; border-radius: 50%; background: conic-gradient(#4285F4, #EA4335, #FBBC05, #34A853, #4285F4); animation: spin 1.2s linear infinite; z-index: -1; }
+        .gdrive-sync-icon::after { content: ''; position: absolute; inset: 2px; background: var(--card-bg); border-radius: 50%; z-index: -1; }
+        .gdrive-sync-icon svg { width: 26px; height: 26px; fill: #3b82f6; }
+
+        .loader { box-sizing: border-box; border: 4px solid rgba(100,100,100,0.2); border-left-color: var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px; flex-shrink: 0; will-change: transform; transform: translateZ(0);}
+        @keyframes spin { 0% { transform: rotate(0deg) translateZ(0); } 100% { transform: rotate(360deg) translateZ(0); } }
+
+        .top-nav-bar { display: flex; align-items: center; background: var(--topbar-bg); border-bottom: 1px solid var(--border-color); padding: 0 10px; padding-top: env(safe-area-inset-top); position: relative; z-index: 40; height: 60px;}
+        .nav-links { display: flex; overflow-x: auto; scroll-behavior: smooth; flex: 1; padding: 10px 5px; gap: 8px; align-items: center; -webkit-overflow-scrolling: touch; }
+        .nav-links::-webkit-scrollbar { display: none; } 
+        .nav-links { -ms-overflow-style: none; scrollbar-width: none; } 
+        .menu-btn { white-space: nowrap; flex-shrink: 0; padding: 10px 18px; border-radius: 20px; border: 1px solid transparent; background: var(--card-bg); color: var(--text-main); cursor: pointer; transition: 0.3s; font-size: 13px; font-weight: 600; outline: none; user-select: none;}
+        .menu-btn:hover { background: var(--bg-color); transform: translateY(-1px); }
+        .menu-btn.active { background: var(--primary); color: var(--btn-text); box-shadow: var(--primary-glow); }
+        .nav-arrow { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; margin: 0 5px; transition: 0.2s; font-size: 16px; flex-shrink: 0;}
+        .nav-arrow:hover { background: var(--primary); color: var(--btn-text); }
+        
+        @media (max-width: 768px) { .nav-arrow { display: none; } .nav-links { padding: 10px; } }
+        
+        .config-dropdown { position: fixed; top: 65px; left: 20px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.4); padding: 25px; width: 550px; display: none; z-index: 100; border: 1px solid var(--border-color); cursor: default; }
+        .config-dropdown.show { display: block; animation: fadeIn 0.2s; }
+        .config-dropdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; text-align: left; }
+        
+        .main-content { flex: 1; position: relative; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: var(--card-shadow); margin-bottom: 20px; border: 1px solid var(--border-color); transition: all 0.3s; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 20px; }
+        
+        .card-item { background: var(--bg-color); padding: 20px; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); transition: all 0.3s; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid var(--accent); content-visibility: auto; contain-intrinsic-size: 180px; }
+        .card-item:hover { transform: translateY(-3px); border-left-color: var(--primary); }
+        
+        .row-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; align-items: center; }
+        .row-form input, .row-form select, .row-form button { margin: 0; height: 44px; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin-bottom: 25px; }
+        .dash-card { background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; border-bottom: 3px solid var(--primary); box-shadow: var(--card-shadow); border-top: 1px solid var(--border-color); border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; transition: 0.2s;}
+        
+        .history-card { background: var(--bg-color); padding: 15px; border-radius: 12px; margin-bottom: 12px; border-left: 3px solid var(--accent); cursor: pointer; transition: 0.2s; border: 1px solid var(--border-color); border-left-width: 3px; content-visibility: auto; contain-intrinsic-size: 100px; }
+        .history-card:hover { transform: translateX(4px); border-left-color: var(--primary); }
+
+        .search-wrapper { position: relative; margin-bottom: 15px; }
+        .search-wrapper input { padding-left: 40px; margin-bottom: 0; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-muted); pointer-events: none; }
+        
+        .search-help-card {
+            display: flex; gap: 15px; align-items: center; background: var(--bg-color); border: 1px solid var(--border-color); border-left: 4px solid var(--primary); padding: 15px; border-radius: 12px; margin-top: 10px; margin-bottom: 20px; color: var(--text-main); font-size: 13px; line-height: 1.5; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .qty-controls { display: flex; align-items: center; gap: 8px; margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 12px; }
+        .btn-qty { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.2s; }
+        .btn-qty:hover { background: var(--primary); color: var(--btn-text); border-color: var(--primary); }
+
+        .checkbox-container { display: flex; align-items: flex-start; gap: 10px; text-align: left; margin-bottom: 15px; }
+        .checkbox-container input { width: 18px; height: 18px; margin: 2px 0 0; cursor: pointer; accent-color: var(--primary); }
+        .checkbox-container label { font-size: 13px; color: var(--text-main); cursor: pointer; line-height: 1.4; }
+
+        .peca-row { display: grid; grid-template-columns: 3fr 1fr 80px 100px; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .peca-row input, .peca-row select, .peca-row button { margin: 0; height: 44px; }
+        
+        .foto-preview { position: relative; display: inline-block; transition: 0.2s; }
+        .foto-preview:hover { transform: scale(1.05); }
+        .foto-preview img { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border-color); }
+        .foto-preview button { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='gray' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 10px center; background-size: 1em; padding-right: 30px; text-overflow: ellipsis; white-space: nowrap; width: auto; min-width: 150px; }
+
+        .nova-os-form { background: var(--bg-color); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .os-section { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .os-section-title { font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        .dre-container { background: var(--bg-color); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
+        .dre-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border-color); }
+        .dre-total { font-weight: bold; font-size: 1.2em; margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--primary); }
+
+        .cliente-autocomplete { position: relative; }
+        .autocomplete-sugestoes { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
+        .autocomplete-sugestoes div { padding: 10px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        .autocomplete-sugestoes div:hover { background: var(--primary); color: var(--btn-text); }
+
+        .agenda-timeline-container { overflow-x: auto; background: var(--bg-color); border-radius: 12px; border: 1px solid var(--border-color); padding: 15px; -webkit-overflow-scrolling: touch;}
+        .agenda-timeline-inner { min-width: 1000px; position: relative; margin-top: 10px; }
+        .agenda-header-hours { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; }
+        .agenda-hour-tick { flex: 1; text-align: left; font-size: 11px; color: var(--text-muted); border-left: 1px solid var(--border-color); padding-left: 4px; height: 20px; }
+        
+        .agenda-event-box { position: absolute; background: var(--primary); color: var(--btn-text); border-radius: 8px; padding: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.2); }
+        .agenda-event-box:hover { filter: brightness(1.1); z-index: 10; overflow: visible; white-space: normal; height: auto !important; min-height: 72px; box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 10px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .peca-row { grid-template-columns: 1fr; gap: 8px; }
+            .peca-row button { width: 100%; }
+            .modal-box { width: 100% !important; padding: 25px 15px 15px !important; margin: 0; border-radius: 12px; }
+            .view-section { padding: 15px 15px 90px 15px; height: calc(100vh - 60px); }
+            .card { padding: 15px; }
+            .config-dropdown { position: fixed; top: 65px; left: 50%; transform: translateX(-50%); width: 95vw; max-height: calc(100vh - 80px); overflow-y: auto; padding: 20px; }
+            .toast-container { bottom: 15px; right: 15px; left: 15px; }
+            .toast { width: 100%; }
+            #tutorial-box { right: 15px; left: 15px; bottom: 85px; max-width: none; }
+        }
+    </style>
+</head>
+<body class="tema-sistema"> 
+    
+    <div id="drive-notification" class="gdrive-sync-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+    </div>
+
+    <div id="tutorial-box">
+        <h4 style="margin-bottom: 5px; color: var(--primary);">💡 Dica do Sistema</h4>
+        <p id="tutorial-text" style="font-size: 12px; margin-bottom: 10px; line-height: 1.4;"></p>
+        <div style="display:flex; justify-content:flex-end;">
+            <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 10px; border:none; background: var(--bg-color);" onclick="pularTutorial()">Pular Dicas</button>
+        </div>
+    </div>
+
+    <div id="startup-overlay" class="hidden fade-out">
+        <div class="startup-box" style="text-align: center;">
+            <div class="loader" style="width: 50px; height: 50px; border-width: 5px; margin-bottom: 20px;"></div>
+            <h3 style="color: var(--primary); margin-bottom: 8px;">Carregando sistema...</h3>
+            <p style="color: var(--text-muted);">Preparando interface e verificando consistências financeiras</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+            <button class="close-modal-x" onclick="fecharModal()">✖</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-box" id="form-login">
+            <div id="form-login-content">
+                <svg class="animated-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <h3>TorquePro</h3>
+                <p>Gestão Inteligente de Oficinas</p>
+                <button class="btn" style="margin:20px auto 0; max-width:240px; background:#fff; color:#3c4043; border:1px solid #dadce0; font-weight:600; font-size:13px; padding:10px 16px; border-radius:8px; box-shadow:0 4px 6px rgba(0,0,0,0.1);" onclick="loginComGoogleAuth()">
+                    <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" style="margin-right:8px;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continuar com o Google
+                </button>
+            </div>
+            
+            <div id="form-login-loading" style="display: none;">
+                <div class="loader" style="width:50px;height:50px;border-width:4px;margin:0 auto 20px;"></div>
+                <h3 style="color:#ffffff !important; margin-bottom:10px;">Autenticando...</h3>
+                <p style="color:rgba(255,255,255,0.7) !important;">Sincronizando banco de dados seguro.</p>
+            </div>
+            
+            <div id="form-login-error" style="display: none;">
+                <div style="font-size: 50px; margin-bottom: 15px;">❌</div>
+                <h3 style="color:var(--danger) !important; margin-bottom:10px;">Erro na Autenticação</h3>
+                <p style="color:rgba(255,255,255,0.7) !important;">Não foi possível efetuar o login com o Google. Tente novamente.</p>
+            </div>
+        </div>
+        <div style="position:absolute; bottom:20px; right:20px; display:flex; align-items:center; gap:6px; color:#fff; font-size:11px; font-weight:bold; background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); padding:6px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.1);">
+            🛡️ <span>PROTEGIDO</span>
+        </div>
+        
+        <div style="position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.6); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.15); display:flex; flex-direction:column; gap:6px; z-index:1001; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+            <div style="font-size:10px; color:#ccc; font-weight:bold; text-align:center; letter-spacing:1px; margin-bottom:4px;">ACESSO ADMIN</div>
+            <input type="text" id="admin-user" placeholder="Usuário" style="margin:0; padding:6px 8px; font-size:11px; width:140px; border-radius:6px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2);">
+            <input type="password" id="admin-pass" placeholder="Senha" style="margin:0; padding:6px 8px; font-size:11px; width:140px; border-radius:6px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2);">
+            <button class="btn btn-primary" style="min-height:26px; padding:6px; font-size:11px; border-radius:6px; margin-top:2px;" onclick="verificarLoginAdmin()">Acesso Local</button>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden">
+        
+        <div id="config-menu" class="config-dropdown" onclick="event.stopPropagation()">
+            <button class="close-modal-x" id="btn-close-config" onclick="toggleConfig(); event.stopPropagation();">✖</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h4 style="color: var(--primary);">Opções do Sistema</h4>
+                <span id="nuvem-status" style="font-size:10px; padding:4px 8px; border-radius:12px; border:1px solid var(--border-color);">Local</span>
+            </div>
+            <div class="config-dropdown-grid">
+                <div style="border-right:1px solid var(--border-color); padding-right:20px;">
+                    <h5 style="margin-bottom:12px;">👤 Dados da Empresa</h5>
+                    <input type="text" id="cfg-empresa" placeholder="Nome da Empresa">
+                    <input type="text" id="cfg-cnpj" placeholder="CNPJ ou MEI">
+                    <span class="hint-text">* Este CNPJ constará no cabeçalho das ordens de serviço e recibos.</span>
+                    
+                    <input type="text" id="cfg-endereco" placeholder="Endereço Completo (com CEP)">
+                    <span class="hint-text">* Este endereço constará no cabeçalho dos relatórios e PDFs.</span>
+
+                    <input type="number" id="cfg-valor-hora" placeholder="Valor da Mão de Obra por Hora (R$)">
+                    <span class="hint-text">* Define o valor base cobrado por hora de serviço na O.S.</span>
+                    
+                    <label class="custom-file-upload"><input type="file" id="cfg-logo" accept="image/*" onchange="atualizarNomeArquivo(this)"><span id="nome-arquivo-logo">📁 Adicionar Logotipo</span></label>
+                    <button class="btn btn-primary btn-action-principal" style="width:100%; margin-top:5px;" onclick="salvarConfig(event)">Salvar Perfil</button>
+                    <button class="btn btn-secondary" style="width:100%; margin-top:10px; color:var(--danger); border-color:var(--danger);" onclick="confirmarSair()">Desconectar</button>
+                </div>
+                <div>
+                    <h5 style="margin-bottom:12px;">⚙️ Sistema e Backup</h5>
+                    <button class="btn btn-secondary" style="width:100%; margin-bottom:10px;" id="btn-autosave" onclick="configurarAutoSave()">📁 Ativar Auto-Save Local</button>
+                    <button class="btn btn-secondary" style="width:100%; margin-bottom:10px;" onclick="exportarBackup()" id="btn-exportar-db">💾 Exportar Banco (Local)</button>
+                    <label class="btn btn-secondary" style="width:100%; display:flex; margin-bottom:10px; cursor:pointer;" id="label-importar-db">📂 Importar Banco<input type="file" id="file-import" accept=".json" onchange="importarBackup(event)"></label>
+                    <button class="btn hidden" style="width:100%; margin-bottom:10px; background:#4285F4; color:white; font-weight:bold;" onclick="puxarBackupGoogleDrive(true)" id="btn-gdrive-puxar">☁️ Forçar Sincronia Google</button>
+                    <button class="btn" style="width:100%; margin-bottom:10px; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);" onclick="confirmarResetGeral()">⚠️ Resetar Sistema</button>
+                    <div style="margin-top:10px;">
+                        <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">🎨 Tema de Cores</label>
+                        <select id="cfg-tema" onchange="aplicarTema(this.value)" style="margin:0; width:100%;">
+                            <option value="tema-sistema">Automático (Sistema)</option>
+                            <option value="tema-classic-navy">Clássico Marinho (Branco e Azul)</option>
+                            <option value="tema-industrial-orange">Laranja Industrial (Cinza e Laranja)</option>
+                            <option value="tema-midnight-rider">Midnight Rider (Escuro e Bordô)</option>
+                            <option value="tema-vintage-scrambler">Vintage Scrambler (Terroso e Cobre)</option>
+                            <option value="tema-chrome-cruiser">Chrome Cruiser (Prata e Aço)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: right; color: var(--text-muted); font-size: 11px; border-top: 1px solid var(--border-color); padding-top: 10px;">Versão <span id="versao-app">2.0.0</span> (TorquePro)</div>
+        </div>
+
+        <div class="top-nav-bar" id="topNavBar">
+            <button class="nav-arrow left-arrow" onclick="scrollNav(-1)">&#10094;</button>
+            <div class="nav-links" id="navLinks">
+                <button class="menu-btn" id="btn-open-config" onclick="toggleConfig()" style="background: var(--card-bg); border-color: var(--border-color);">⚙️</button>
+                <button class="menu-btn active" onclick="navegar('inicio')">🏠 Painel de Lembretes</button>
+                <button class="menu-btn" onclick="navegar('agendamento')">📅 Agendamentos</button>
+                <button class="menu-btn" onclick="navegar('cadastro')">👤 Novo Cliente</button>
+                <button class="menu-btn" onclick="navegar('clientes')">📋 Clientes</button>
+                <button class="menu-btn" onclick="navegar('maoobra')">🛠️ Serviços e M.O</button>
+                <button class="menu-btn" onclick="navegar('estoque')">📦 Estoque</button>
+                <button class="menu-btn" onclick="navegar('fornecedores')">🚚 Fornecedores</button>
+                <button class="menu-btn" onclick="navegar('gestao')">💰 Financeiro</button>
+                <button class="menu-btn" onclick="navegar('marketing')">📱 WhatsApp</button>
+            </div>
+            <button class="nav-arrow right-arrow" onclick="scrollNav(1)">&#10095;</button>
+        </div>
+
+        <div class="main-content">
+            <div id="view-inicio" class="view-section">
+                <div id="saudacao-usuario" style="margin-bottom:25px;"></div>
+                <div class="card" style="border-left:4px solid var(--primary);">
+                    <h3>🔧 Serviços Essenciais Pendentes</h3>
+                    <p style="color:var(--text-muted); margin-bottom:20px;">Acompanhe aqui os serviços fixados no painel e altere o status das OS.</p>
+                    <div id="lista-inicio-servicos" class="grid-cards"></div>
+                </div>
+            </div>
+
+            <div id="view-cadastro" class="view-section hidden">
+                <div class="card" style="max-width:600px; margin:auto;">
+                    <h2 style="margin-bottom:20px; color:var(--primary);">👤 Cadastro de Cliente</h2>
+                    <input type="text" id="cad-nome" placeholder="Nome Completo">
+                    <div class="grid-2"><input type="text" id="cad-tel" placeholder="WhatsApp (DDD+Número)" oninput="this.value = mascaraTelefone(this.value)"><input type="email" id="cad-email" placeholder="E-mail"></div>
+                    <div class="grid-2"><input type="text" id="cad-modelo" placeholder="Modelo da Moto"><input type="text" id="cad-placa" placeholder="Placa (ABC-1234)" oninput="this.value = mascaraPlaca(this.value)"></div>
+                    <div class="grid-2"><input type="text" id="cad-chassi" placeholder="Chassi (17 caracteres)" oninput="this.value = mascaraChassi(this.value)"><input type="number" id="cad-km" placeholder="Km Atual"></div>
+                    <button class="btn btn-success btn-action-principal" style="width:100%; margin-top:15px; padding:12px;" onclick="salvarCliente()">Salvar Cliente</button>
+                </div>
+            </div>
+            
+            <div id="view-clientes" class="view-section hidden">
+                <h2 style="margin-bottom:20px; color:var(--primary);">📋 Central do Cliente</h2>
+                
+                <div id="clientes-opcoes" class="grid-3">
+                    <div class="dash-card" onclick="abrirSubViewCliente('abrir-os')" style="cursor:pointer; border-bottom-color:var(--primary);">
+                        <h3>📝 Abrir Ordem de Serviço</h3><p style="font-size:12px; margin-top:5px; color:var(--text-muted);">Criar nova OS para um cliente</p>
+                    </div>
+                    <div class="dash-card" onclick="abrirSubViewCliente('acompanhar-os')" style="cursor:pointer; border-bottom-color:var(--accent);">
+                        <h3>🔍 Acompanhar Serviço</h3><p style="font-size:12px; margin-top:5px; color:var(--text-muted);">Status e andamento das OSs</p>
+                    </div>
+                    <div class="dash-card" onclick="abrirSubViewCliente('historico-os')" style="cursor:pointer; border-bottom-color:var(--success);">
+                        <h3>🗄️ Histórico de Serviços</h3><p style="font-size:12px; margin-top:5px; color:var(--text-muted);">Visualizar e emitir PDFs antigos</p>
+                    </div>
+                </div>
+                
+                <div id="ultimas-os-geral" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px; color: var(--text-main);">🕒 Últimas 10 O.S. Criadas</h3>
+                    <div id="lista-ultimas-os" class="grid-cards"></div>
+                </div>
+
+                <div id="sub-abrir-os" class="hidden" style="margin-top:20px;">
+                    <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="voltarMenuClientes()">← Voltar</button>
+                    <div class="card">
+                        <h3 style="margin-bottom:15px;">Selecionar Cliente para Nova O.S.</h3>
+                        <div class="cliente-autocomplete">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="busca-cli-abrir" placeholder="Pesquisar por nome, placa, telefone, e-mail, chassi ou O.S antiga..." oninput="buscarCliGeneric(this.value, 'abrir')" style="padding-left:40px;">
+                            <div id="sugestoes-cli-abrir" class="autocomplete-sugestoes"></div>
+                        </div>
+                        
+                        <div class="search-help-card" id="help-cli-abrir">
+                            <div style="font-size: 24px;">💡</div>
+                            <div>
+                                <strong style="font-size: 14px; color: var(--primary);">Como buscar de forma inteligente:</strong><br>
+                                Você pode pesquisar clientes usando o <strong>Nome</strong>, a <strong>Placa</strong>, o <strong>Telefone</strong>, <strong>E-mail</strong>, <strong>Chassi</strong> ou até mesmo digitando o <strong>Número de uma O.S. antiga</strong>! O sistema encontrará o cliente instantaneamente.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="container-nova-os" class="hidden"></div>
+                </div>
+
+                <div id="sub-acompanhar-os" class="hidden" style="margin-top:20px;">
+                    <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="voltarMenuClientes()">← Voltar</button>
+                    <div class="card">
+                        <h3 style="margin-bottom:15px;">Acompanhar Status da O.S.</h3>
+                        <div class="cliente-autocomplete">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="busca-cli-acompanhar" placeholder="Busque cliente por nome, placa, OS..." oninput="buscarCliGeneric(this.value, 'acompanhar')" style="padding-left:40px;">
+                            <div id="sugestoes-cli-acompanhar" class="autocomplete-sugestoes"></div>
+                        </div>
+
+                        <div class="search-help-card" id="help-cli-acompanhar">
+                            <div style="font-size: 24px;">💡</div>
+                            <div>
+                                <strong style="font-size: 14px; color: var(--primary);">Como buscar de forma inteligente:</strong><br>
+                                Você pode pesquisar clientes usando o <strong>Nome</strong>, a <strong>Placa</strong>, o <strong>Telefone</strong>, <strong>E-mail</strong>, <strong>Chassi</strong> ou até mesmo digitando o <strong>Número de uma O.S. antiga</strong>! O sistema encontrará o cliente instantaneamente.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="acomp-lista-container" class="card hidden">
+                        <div id="acomp-lista"></div>
+                    </div>
+                </div>
+
+                <div id="sub-historico-os" class="hidden" style="margin-top:20px;">
+                    <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="voltarMenuClientes()">← Voltar</button>
+                    <div class="card">
+                        <h3 style="margin-bottom:15px;">Histórico de PDFs e Ficha Cadastral</h3>
+                        <div class="cliente-autocomplete">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="busca-cli-historico" placeholder="Busque cliente por nome, placa, OS..." oninput="buscarCliGeneric(this.value, 'historico')" style="padding-left:40px;">
+                            <div id="sugestoes-cli-historico" class="autocomplete-sugestoes"></div>
+                        </div>
+                        
+                        <div class="search-help-card" id="help-cli-historico">
+                            <div style="font-size: 24px;">💡</div>
+                            <div>
+                                <strong style="font-size: 14px; color: var(--primary);">Como buscar de forma inteligente:</strong><br>
+                                Você pode pesquisar clientes usando o <strong>Nome</strong>, a <strong>Placa</strong>, o <strong>Telefone</strong>, <strong>E-mail</strong>, <strong>Chassi</strong> ou até mesmo digitando o <strong>Número de uma O.S. antiga</strong>! O sistema encontrará o cliente instantaneamente.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ficha-dados-cliente" class="card hidden" style="margin-bottom:20px;"></div>
+                    <div id="historico-servicos-container" class="card hidden"></div>
+                </div>
+
+            </div>
+
+            <div id="view-maoobra" class="view-section hidden">
+                <div class="card">
+                    <h3 style="margin-bottom:15px;">🛠️ Cadastrar Serviço de M.O Manualmente</h3>
+                    <div class="row-form">
+                        <input type="text" id="mo-marca" placeholder="Marca (Ex: Honda)">
+                        <input type="text" id="mo-modelo" placeholder="Modelo (Ex: CG 160 Titan)">
+                        <input type="text" id="mo-nome" placeholder="Descrição (Ex: Troca de Óleo)">
+                        <input type="number" id="mo-tempo" placeholder="Tempo (Hrs) Ex: 1.5" step="0.1">
+                        <input type="number" id="mo-valor" placeholder="Valor (R$) Ex: 150.00" step="0.01">
+                        <button class="btn btn-success btn-action-principal" onclick="salvarMaoObra()">Salvar</button>
+                    </div>
+                </div>
+
+                <div class="card" style="border-left: 4px solid var(--primary);">
+                    <h3 style="margin-bottom:15px;">📑 Importar Lista CSV de Serviços</h3>
+                    <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Formato esperado com colunas separadas por ponto-e-vírgula (;) ou vírgula (,): <br><strong style="color:var(--text-main);">Marca; Modelo; Serviço; Tempo Estimado (H); Valor (R$)</strong></p>
+                    <div class="row-form" style="grid-template-columns: 2fr 1fr;">
+                        <label class="custom-file-upload" style="margin:0;"><input type="file" id="file-mo-csv" accept=".csv" onchange="importarCSVMO(event)">📁 Selecionar e Importar CSV</label>
+                        <button class="btn btn-secondary" onclick="limparMaoObra()">🗑️ Limpar Todos os Serviços</button>
+                    </div>
+                </div>
+
+                <h2 style="margin:25px 0 15px;">Biblioteca de Serviços (Tabela de Tempo)</h2>
+                <div class="search-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="busca-maoobra" placeholder="Pesquisar serviço, modelo ou marca..." onkeyup="renderizarMaoObra()">
+                </div>
+                <div id="lista-maoobra" style="margin-top: 15px;"></div>
+            </div>
+
+            <div id="view-estoque" class="view-section hidden">
+                <div class="card">
+                    <h3 style="margin-bottom:15px;">📦 Cadastrar Peça no Estoque</h3>
+                    <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">A inserção gera saída financeira de compra automaticamente.</p>
+                    <div class="row-form">
+                        <input type="text" id="est-nome" placeholder="Nome do Produto/Peça">
+                        <input type="number" id="est-qtd" placeholder="Qtd. Inicial">
+                        <input type="number" id="est-valor" placeholder="Preço Custo (R$)">
+                        <input type="number" id="est-valor-venda" placeholder="Preço Venda (R$)">
+                        <button class="btn btn-success btn-action-principal" onclick="salvarEstoque()">Registrar no Inventário</button>
+                    </div>
+                </div>
+                <h2 style="margin:25px 0 15px;">Inventário da Oficina</h2>
+                <div class="search-wrapper"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="busca-estoque" placeholder="Buscar peça..." onkeyup="renderizarEstoque()"></div>
+                <div id="lista-estoque" class="grid-cards"></div>
+            </div>
+            
+            <div id="view-fornecedores" class="view-section hidden">
+                <div class="card">
+                    <h3 style="margin-bottom:15px;">🚚 Cadastrar Novo Fornecedor</h3>
+                    <div class="row-form">
+                        <input type="text" id="for-nome" placeholder="Nome Fantasia">
+                        <input type="text" id="for-cnpj" placeholder="CNPJ">
+                        <input type="text" id="for-tel" placeholder="Telefone" oninput="this.value = mascaraTelefone(this.value)">
+                        <input type="text" id="for-item" placeholder="Principal Peça/Produto">
+                        <button class="btn btn-success btn-action-principal" onclick="salvarFornecedor()">Salvar Fornecedor</button>
+                    </div>
+                </div>
+                <h2 style="margin:25px 0 15px;">Lista de Fornecedores</h2>
+                <div class="search-wrapper"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="busca-fornecedores" placeholder="Buscar..." onkeyup="renderizarFornecedores()"></div>
+                <div id="lista-fornecedores" class="grid-cards"></div>
+            </div>
+            
+            <div id="view-gestao" class="view-section hidden">
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;"><h2 style="color:var(--primary);">💰 Financeiro</h2><button class="btn btn-danger" onclick="confirmarZerarSaldos()">Zerar Livro Caixa</button></div>
+                
+                <div class="dashboard-grid">
+                    <div class="dash-card"><h3 style="font-size:13px;">Saldo Diário</h3><p id="dash-dia-saldo" style="font-size:22px; font-weight:bold;">R$ 0,00</p></div>
+                    <div class="dash-card"><h3 style="font-size:13px;">Saldo Mensal</h3><p id="dash-mes" style="font-size:22px; font-weight:bold;">R$ 0,00</p></div>
+                    <div class="dash-card" style="border-bottom-color:var(--success);"><h3 style="font-size:13px;">Caixa Livre (Total Real)</h3><p id="dash-caixa-livre" style="font-size:22px; font-weight:bold; color:var(--success);">R$ 0,00</p></div>
+                </div>
+                <div class="grid-2" style="margin-bottom:25px;">
+                    <div class="dash-card" style="border-bottom-color:var(--danger);"><h3 style="font-size:13px;">Saldo Negativo Atual</h3><p id="dash-negativo" style="font-size:20px; font-weight:bold; color:var(--danger);">R$ 0,00</p></div>
+                    <div class="dash-card" style="border-bottom-color:var(--accent);"><h3 style="font-size:13px;">Falta para Positivar</h3><p id="dash-falta-positivar" style="font-size:20px; font-weight:bold; color:var(--accent);">R$ 0,00</p></div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-bottom:15px;">Lançamento Manual no Caixa</h3>
+                        <p style="color:var(--text-muted); font-size:11px; margin-bottom:12px;">Despesas não planejadas ou receitas avulsas.</p>
+                        <div class="row-form" style="grid-template-columns:1fr;">
+                            <select id="fin-tipo"><option value="entrada">Entrada (+)</option><option value="saida">Saída (-)</option></select>
+                            <input type="text" id="fin-desc" placeholder="Descrição">
+                            <input type="text" id="fin-valor" placeholder="Valor (R$) - Ex: 150,50">
+                            <button class="btn btn-primary btn-action-principal" onclick="salvarMovimentacao()">Registrar</button>
+                        </div>
+                    </div>
+                    <div class="card"><h3 style="margin-bottom:15px;">Últimos Lançamentos Avulsos</h3><div id="lista-avulsos" style="max-height:230px; overflow-y:auto; -webkit-overflow-scrolling: touch;"></div></div>
+                </div>
+
+                <div class="card" id="card-grafico" style="display:none; margin-bottom: 25px;">
+                    <h3 style="margin-bottom:15px;">📈 Movimentação do Período (Entradas x Saídas)</h3>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="grafico-relatorio"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" style="border-top:4px solid var(--success);">
+                    <div style="display:flex; justify-content:space-between; cursor:pointer;" onclick="document.getElementById('bloco-fechamento-conteudo').classList.toggle('hidden')">
+                        <h3 style="margin-bottom:0;">📊 Cálculo de Lucro Líquido (DRE)</h3>
+                        <span>▼ Expandir</span>
+                    </div>
+                    <div id="bloco-fechamento-conteudo" class="hidden" style="margin-top:15px; border-top:1px solid var(--border-color); padding-top:15px;">
+                        <p style="color:var(--text-muted); margin-bottom:20px;">Deduza custos fixos e comissões para saber o que sobra no caixa.</p>
+                        
+                        <div class="grid-2" style="margin-bottom:20px; background:var(--bg-color); padding:20px; border-radius:12px;">
+                            <div><h4 style="margin-bottom:12px;">📋 Custos Operacionais Base</h4><div class="row-form" style="grid-template-columns:1fr 1fr;"><div><label>Aluguel (R$)</label><input type="number" id="fixo-aluguel" value="0" onchange="salvarConfigFechamento()"></div><div><label>Água (R$)</label><input type="number" id="fixo-agua" value="0" onchange="salvarConfigFechamento()"></div><div><label>Energia (R$)</label><input type="number" id="fixo-energia" value="0" onchange="salvarConfigFechamento()"></div><div><label>Internet (R$)</label><input type="number" id="fixo-internet" value="0" onchange="salvarConfigFechamento()"></div></div></div>
+                            <div><div style="display:flex; justify-content:space-between;"><h4 style="margin-bottom:10px;">👥 Comissionamento Técnico</h4><button class="btn btn-secondary" onclick="addNovoTecnicoFechamento()">+ Adicionar Técnico</button></div><p style="font-size:11px; margin-bottom:12px;">% sobre o lucro líquido gerado.</p><div id="lista-tecnicos-fechamento" style="max-height:160px; overflow-y:auto; -webkit-overflow-scrolling: touch;"></div></div>
+                        </div>
+                        
+                        <div style="margin-bottom:20px;"><h4>📅 Período de Avaliação</h4><div style="display:flex; gap:15px;"><input type="month" id="filtro-mes-fechamento" onchange="calcularFechamento()" style="flex:1;"><input type="date" id="filtro-dia-fechamento" onchange="calcularFechamento()" style="flex:1;"><button class="btn btn-secondary" onclick="limparFiltroFechamento()">Usar Mês Atual</button></div></div>
+                        
+                        <div id="resultado-fechamento" style="background:var(--bg-color); padding:20px; border-radius:12px;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom:15px;">Extrato Diário / Geral</h3>
+                    <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Selecione o filtro para visualizar o relatório de Entradas e Saídas do período.</p>
+                    <div style="display:flex; gap:15px; margin-bottom:15px;">
+                        <input type="month" id="busca-financas-mes" onchange="document.getElementById('busca-financas-dia').value=''; renderizarFinanceiroFiltrado()" style="flex:1;">
+                        <input type="date" id="busca-financas-dia" onchange="document.getElementById('busca-financas-mes').value=''; renderizarFinanceiroFiltrado()" style="flex:1;">
+                        <button class="btn btn-secondary" onclick="document.getElementById('busca-financas-dia').value=''; document.getElementById('busca-financas-mes').value=''; renderizarFinanceiroFiltrado()">Limpar</button>
+                    </div>
+                    <div id="resultado-calendario-info" style="margin-bottom:15px; font-weight:bold; color:var(--primary);">Aguardando seleção...</div>
+                    <div id="historico-meses" class="grid-cards"></div>
+                </div>
+            </div>
+
+            <div id="view-marketing" class="view-section hidden">
+                <div class="card" style="border-left:4px solid #25D366; background:rgba(37,211,102,0.05);"><h2 style="color:#25D366;">📱 WhatsApp Direct</h2><p style="color:var(--text-main);">Envie alertas de revisão, acompanhamentos e promoções diretamente para o WhatsApp dos seus clientes.</p></div>
+                <div class="search-wrapper"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="busca-whatsapp" placeholder="Pesquisar cliente..." onkeyup="renderizarMarketing()"></div>
+                <div id="lista-marketing" class="grid-cards"></div>
+            </div>
+
+            <div id="view-agendamento" class="view-section hidden">
+                <h2 style="margin-bottom:20px; color:var(--primary);">📅 Agendamento de Serviços (Timeline)</h2>
+                
+                <div class="card" style="margin-bottom:20px;">
+                    <h3 style="margin-bottom:15px;">Novo Agendamento</h3>
+                    <div class="cliente-autocomplete" style="margin-bottom:15px;">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="z-index: 10;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="ag-busca" placeholder="Buscar cliente cadastrado..." oninput="buscarClienteAg(this.value)" style="padding-left: 40px; margin:0;">
+                        <div id="ag-sugestoes" class="autocomplete-sugestoes"></div>
+                    </div>
+                    <div id="ag-cliente-selecionado" style="color:var(--primary); font-size:13px; margin-bottom:15px; font-weight:bold;">Nenhum cliente selecionado</div>
+                    
+                    <div class="grid-2">
+                        <div><label style="font-size: 11px; color: var(--text-muted);">Serviço a realizar</label><input type="text" id="ag-servico" placeholder="Ex: Troca de Relação" style="margin: 4px 0 10px;"></div>
+                        <div><label style="font-size: 11px; color: var(--text-muted);">Motocicleta</label><input type="text" id="ag-moto" placeholder="Modelo" readonly style="margin: 4px 0 10px;"></div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div><label style="font-size: 11px; color: var(--text-muted);">Data do Serviço</label><input type="date" id="ag-data" style="margin: 4px 0 0;"></div>
+                        <div><label style="font-size: 11px; color: var(--text-muted);">Hora de Início</label><input type="time" id="ag-hora" style="margin: 4px 0 0;"></div>
+                        <div><label style="font-size: 11px; color: var(--text-muted);">Tempo Estimado (Hrs)</label><input type="number" id="ag-tempo" placeholder="Ex: 2.5" step="0.5" style="margin: 4px 0 0;"></div>
+                    </div>
+                    <button class="btn btn-primary btn-action-principal" style="width:100%; margin-top:20px;" onclick="salvarNovoAgendamento()">Lançar na Agenda</button>
+                </div>
+
+                <div class="card" style="padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <button class="btn btn-secondary" onclick="mudarDiaAgenda(-1)">⬅ Anterior</button>
+                        <h3 id="agenda-data-display" style="color:var(--primary); margin:0; font-size:18px;">---</h3>
+                        <button class="btn btn-secondary" onclick="mudarDiaAgenda(1)">Próximo ➡</button>
+                    </div>
+                    <div id="container-timeline-agenda"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const APP_VERSION = "2.0.0";
+        let autoSaveDirHandle = null, googleAccessToken = null, tokenClient, pendingSaveTimeout = null;
+        let inactivityTime = 0, inactivityInterval = null;
+        let syncInterval = null, isSyncing = false, currentDriveFileId = null;
+        
+        let dataAgendaAtual = new Date();
+        let clienteAgSelecionado = null;
+        let relatorioChart = null;
+
+        let dbStr = localStorage.getItem('O.SGestão&OficinaDB') || localStorage.getItem('SistemaGestaoOficinasDB');
+        let db = dbStr ? JSON.parse(dbStr) : { 
+            config: { empresa: 'TorquePro', logo: '', valorHora: 120, osCounter: 1000, lastVersionSeen: "0.0.0", tema: 'tema-sistema', fechamento: {aluguel:0, agua:0, energia:0, internet:0, tecnicos: []}, cnpj: '', endereco: '', tutorialCount: 0, tutorialSkipped: false }, 
+            clientes: [], fornecedores: [], financas: [], estoque: [], maoObra: [], historicoAlertas: {semana: '', mes: '', ano: ''}, agendamentos: [],
+            lastUpdated: 0
+        };
+        let pecasTempNovaOS = [];
+        let clienteAtualId = null, osEdicaoAtual = null; 
+        let currentPageAcomp = 1;
+
+        if(!db.config.osCounter) db.config.osCounter = 1000;
+        if(!db.config.lastVersionSeen) db.config.lastVersionSeen = "0.0.0";
+        if(!db.config.tema || db.config.tema.includes('laranja') || db.config.tema.includes('carbon')) db.config.tema = 'tema-sistema';
+        if(!db.config.valorHora) db.config.valorHora = 120;
+        if(!db.config.empresa || db.config.empresa === 'NirvanaWings') db.config.empresa = 'TorquePro'; 
+        if(!db.config.cnpj) db.config.cnpj = '';
+        if(!db.config.endereco) db.config.endereco = '';
+        if(db.config.tutorialCount === undefined) db.config.tutorialCount = 0;
+        if(db.config.tutorialSkipped === undefined) db.config.tutorialSkipped = false;
+        
+        if(!db.fornecedores) db.fornecedores = [];
+        if(!db.maoObra) db.maoObra = []; 
+        if(!db.config.fechamento) db.config.fechamento = {aluguel:0, agua:0, energia:0, internet:0, tecnicos: []};
+        if(!db.config.fechamento.tecnicos) db.config.fechamento.tecnicos = [];
+        if(!db.agendamentos) db.agendamentos = [];
+        if(!db.lastUpdated) db.lastUpdated = Date.now();
+        db.financas.forEach(f => { if (!f.categoria) { f.categoria = 'oficina'; f.subtipo = 'outro'; } });
+        db.fornecedores.forEach(f => { f.qtdComprada = f.qtdComprada || 0; f.valorGasto = f.valorGasto || 0; });
+        
+        db.clientes.forEach(c => {
+            if(!c.servicos) c.servicos = [];
+            c.servicos.forEach(s => { 
+                if(!s.orcamento) s.orcamento = { pecas: [], moExtra: 0, srvExtra: 0, status: 'Pendente' }; 
+                if(s.aprovado === undefined) s.aprovado = true; 
+                if(!s.statusOs) {
+                    s.statusOs = s.concluida ? 'Faturada' : 'Aberta';
+                }
+            });
+        });
+        
+        db.maoObra = db.maoObra.map(m => ({ ...m, marca: m.marca || '', modelo: m.modelo || '' }));
+
+        localStorage.setItem('O.SGestão&OficinaDB', JSON.stringify(db));
+
+        document.body.className = db.config.tema;
+        document.documentElement.style.backgroundColor = 'var(--bg-color)';
+
+        const dicasTutorial = {
+            'inicio': 'No painel você acompanha os serviços fixados. Altere o status da OS para "Faturada" para lançar os valores no caixa.',
+            'agendamento': 'Aqui você visualiza e adiciona agendamentos na linha do tempo.',
+            'cadastro': 'Cadastre novos clientes preenchendo as informações corretamente.',
+            'clientes': 'Use os 3 cards para Abrir uma OS, Acompanhar o Andamento ou ver o Histórico/PDFs dos clientes.',
+            'maoobra': 'Cadastre sua tabela de preços ou importe via CSV para agilizar as OS.',
+            'estoque': 'Adicione peças ao estoque. O valor de custo vai para o caixa (saída) automaticamente.',
+            'fornecedores': 'Lance compras diretamente por aqui para alimentar o estoque e registrar no financeiro.',
+            'gestao': 'Seu fluxo de caixa completo. Selecione o filtro de data para ver o extrato diário ou mensal.',
+            'marketing': 'Envie lembretes e promoções para os clientes via WhatsApp com base na última OS.'
+        };
+
+        function exibirTutorial(aba) {
+            if (db.config.tutorialSkipped || db.config.tutorialCount >= 5) return;
+            let tutBox = document.getElementById('tutorial-box');
+            let tutText = document.getElementById('tutorial-text');
+            if (dicasTutorial[aba]) { tutText.innerText = dicasTutorial[aba]; tutBox.style.display = 'block'; setTimeout(() => tutBox.classList.add('show'), 100); }
+        }
+        function pularTutorial() {
+            db.config.tutorialSkipped = true; atualizarBancoDados();
+            let tutBox = document.getElementById('tutorial-box'); tutBox.classList.remove('show'); setTimeout(() => tutBox.style.display = 'none', 300);
+            mostrarToast("Tutorial desativado.", "var(--primary)");
+        }
+        function mostrarNotasAtualizacao() {
+            document.getElementById('modalContent').innerHTML = `
+                <h2 style="color:var(--primary); margin-bottom:15px;">🚀 Novidades da Versão 2.0.0</h2>
+                <div style="text-align: left; font-size: 13px; max-height: 300px; overflow-y: auto; padding-right: 10px; line-height: 1.5;">
+                    <ul style="padding-left: 20px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px;">
+                        <li><strong>Busca Global Inteligente:</strong> Agora você pode buscar clientes na O.S digitando número de telefone, placa, chassi, ou até o número de uma O.S antiga!</li>
+                        <li><strong>Icone Permanente:</strong> Adicionado suporte nativo e ícone atualizado para todas as plataformas.</li>
+                        <li><strong>Layout Limpo:</strong> Otimização de scripts e remoção de redundâncias.</li>
+                        <li><strong>Suporte a ENTER e ESC:</strong> Agora os atalhos funcionam de forma mais inteligente por todo o sistema.</li>
+                        <li><strong>Animações Otimizadas:</strong> Melhoramos a renderização para evitar travamentos durante as transições de carregamento.</li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary btn-action-principal" style="width:100%; margin-top:20px;" onclick="fecharModal()">Entendi, vamos lá!</button>
+            `;
+            document.getElementById('customModal').classList.add('show');
+        }
+        function checarNovidades() { if(db.config.lastVersionSeen !== APP_VERSION) { db.config.lastVersionSeen = APP_VERSION; atualizarBancoDados(); mostrarNotasAtualizacao(); } }
+        function obterMesStr(dataObj) { return dataObj.getFullYear() + '-' + String(dataObj.getMonth() + 1).padStart(2, '0'); }
+        function obterAnoStr(dataObj) { return String(dataObj.getFullYear()); }
+        function updateThemeColorMeta() { let meta = document.getElementById('meta-theme-color'); let color = getComputedStyle(document.body).getPropertyValue('--bg-color').trim(); if(meta && color) meta.setAttribute('content', color); if(document.documentElement) document.documentElement.style.backgroundColor = color; }
+
+        function exibirErroLogin() {
+            document.getElementById('form-login-loading').style.display = 'none';
+            document.getElementById('form-login-error').style.display = 'block';
+            setTimeout(() => { document.getElementById('form-login-error').style.display = 'none'; document.getElementById('form-login-content').style.display = 'block'; }, 3500);
+        }
+
+        function verificarLoginAdmin() {
+            let user = document.getElementById('admin-user').value; let pass = document.getElementById('admin-pass').value;
+            if(user === 'ADMIN' && pass === '23021998Lucas@') { mostrarToast("Acesso Admin Liberado!", "var(--success)"); document.getElementById('nuvem-status').innerText = 'Modo Local (Admin)'; iniciarSessaoSistema(); } else { mostrarToast("Credenciais inválidas!", "var(--danger)"); }
+        }
+
+        function realizarVarreduraFinanceira() {
+            let financasCorrigidas = [];
+            let osFaturadasRefs = new Set();
+            db.clientes.forEach(c => { c.servicos.forEach(s => { if (s.statusOs === 'Faturada') { osFaturadasRefs.add(s.osNumber); } }); });
+            db.financas.forEach(f => {
+                if (f.categoria === 'oficina' && (f.subtipo === 'mao_obra' || f.subtipo === 'pecas') && f.osRef) { if (osFaturadasRefs.has(f.osRef)) { financasCorrigidas.push(f); } } else { financasCorrigidas.push(f); }
+            });
+            db.clientes.forEach(c => {
+                c.servicos.forEach(s => {
+                    if (s.statusOs === 'Faturada') {
+                        let temMo = financasCorrigidas.some(f => f.osRef === s.osNumber && f.subtipo === 'mao_obra');
+                        let temPecas = financasCorrigidas.some(f => f.osRef === s.osNumber && f.subtipo === 'pecas');
+                        let parts = s.data.split('/'); let ts = Date.now();
+                        if(parts.length === 3) { ts = new Date(parts[2], parts[1]-1, parts[0]).getTime(); }
+                        if (!temMo && s.maoObra > 0) { financasCorrigidas.push({ osRef: s.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'mao_obra', desc: `OS ${s.osNumber} - Mão de Obra`, valor: s.maoObra, data: ts }); }
+                        if (!temPecas && s.pecas > 0) { financasCorrigidas.push({ osRef: s.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'pecas', desc: `OS ${s.osNumber} - Peças Faturadas`, valor: s.pecas, data: ts + 1000 }); }
+                    }
+                });
+            });
+            if (db.financas.length !== financasCorrigidas.length || JSON.stringify(db.financas) !== JSON.stringify(financasCorrigidas)) { db.financas = financasCorrigidas; atualizarBancoDados(); }
+        }
+
+        window.onload = function() {
+            realizarVarreduraFinanceira(); updateThemeColorMeta(); iniciarMonitoramentoInatividade();
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: '994168697117-ke4sonugcdegsj4ahjugb6r8ocfnbffs.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: async (tokenResponse) => {
+                    if (tokenResponse && tokenResponse.access_token) {
+                        googleAccessToken = tokenResponse.access_token; mostrarToast("🔐 Acesso ao Google Drive liberado!", "var(--success)");
+                        document.getElementById('nuvem-status').innerText = 'Nuvem Ativa'; document.getElementById('nuvem-status').style.color = 'var(--primary)'; document.getElementById('nuvem-status').style.borderColor = 'var(--primary)';
+                        atualizarBotoesDrive(); await puxarBackupGoogleDrive(true); iniciarSincronizacaoPeriodica();
+                        if(!document.getElementById('login-screen').classList.contains('hidden')) iniciarSessaoSistema();
+                    } else { exibirErroLogin(); }
+                }, error_callback: (error) => { exibirErroLogin(); }
+            });
+            document.addEventListener('visibilitychange', () => { if (!document.hidden && googleAccessToken) { puxarBackupGoogleDrive(false); } });
+        };
+
+        function iniciarSincronizacaoPeriodica() { if (syncInterval) clearInterval(syncInterval); syncInterval = setInterval(() => { if (googleAccessToken && !document.hidden && !isSyncing) { puxarBackupGoogleDrive(false); } }, 30000); }
+        function iniciarMonitoramentoInatividade() { const reset = () => { inactivityTime = 0; }; window.addEventListener('mousemove', reset); window.addEventListener('keydown', reset); window.addEventListener('touchstart', reset); window.addEventListener('click', reset); window.addEventListener('scroll', reset); inactivityInterval = setInterval(() => { inactivityTime++; if (inactivityTime === 60) salvarNoGoogleDriveBackground(true); if (inactivityTime === 1800) { mostrarDriveToast(); salvarNoGoogleDriveBackground(true).then(() => setTimeout(esconderDriveToast, 3500)); inactivityTime = 0; } }, 1000); }
+        function loginComGoogleAuth() { document.getElementById('form-login-content').style.display = 'none'; document.getElementById('form-login-loading').style.display = 'block'; tokenClient.requestAccessToken(); }
+        function mostrarDriveToast() { const el = document.getElementById('drive-notification'); el.classList.add('show'); setTimeout(() => esconderDriveToast(), 2000); }
+        function esconderDriveToast() { document.getElementById('drive-notification').classList.remove('show'); }
+
+        function atualizarBotoesDrive() {
+            let btnExportar = document.getElementById('btn-exportar-db'); let btnImportar = document.getElementById('label-importar-db'); let btnGdrive = document.getElementById('btn-gdrive-puxar');
+            if(googleAccessToken) { btnExportar.innerText = '☁️ Salvar Agora no Google Drive'; btnExportar.style.background = 'var(--primary)'; btnExportar.style.color = '#fff'; btnExportar.style.border = 'none'; btnExportar.onclick = () => executarSaveGoogleDriveForce(); btnImportar.classList.add('hidden'); btnGdrive.classList.remove('hidden'); }
+        }
+
+        async function localizarArquivoNoDrive() {
+            if (currentDriveFileId) return currentDriveFileId;
+            try { const res = await fetch('https://www.googleapis.com/drive/v3/files?q=name="OS_GEO_Backup.json" and trashed=false&spaces=drive', { headers: { Authorization: `Bearer ${googleAccessToken}` } }); const data = await res.json(); if (data.files && data.files.length > 0) { currentDriveFileId = data.files[0].id; return currentDriveFileId; } return null; } catch(e) { return null; }
+        }
+
+        async function puxarBackupGoogleDrive(isInitialLogin = false) {
+            if(!googleAccessToken || isSyncing) return; isSyncing = true; if(isInitialLogin) mostrarDriveToast();
+            try {
+                let fileId = await localizarArquivoNoDrive();
+                if(fileId) {
+                    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${googleAccessToken}` } });
+                    const nuvemDb = await res.json();
+                    if(nuvemDb && nuvemDb.config) {
+                        let cloudTime = nuvemDb.lastUpdated || 0; let localTime = db.lastUpdated || 0;
+                        if (isInitialLogin || cloudTime > localTime) {
+                            db = nuvemDb;
+                            if(!db.config.fechamento) db.config.fechamento = {aluguel:0, agua:0, energia:0, internet:0, tecnicos: []};
+                            if(!db.config.cnpj) db.config.cnpj = ''; if(!db.config.endereco) db.config.endereco = '';
+                            if(!db.maoObra) db.maoObra = []; db.maoObra = db.maoObra.map(m => ({ ...m, marca: m.marca || '', modelo: m.modelo || '' }));
+                            localStorage.setItem('O.SGestão&OficinaDB', JSON.stringify(db));
+                            if(!isInitialLogin) mostrarToast("✅ Dados atualizados pela nuvem!", "var(--success)");
+                            let currentView = document.querySelector('.view-section:not(.hidden)'); if(currentView) navegar(currentView.id.replace('view-', ''));
+                        }
+                    }
+                } else { if(isInitialLogin) await salvarNoGoogleDriveBackground(true); }
+            } catch(e) {}
+            isSyncing = false; setTimeout(esconderDriveToast, 1500);
+        }
+
+        async function salvarNoGoogleDriveBackground(silent = false) {
+            if(!googleAccessToken || isSyncing) return; isSyncing = true; if(!silent) mostrarDriveToast();
+            db.lastUpdated = Date.now(); const fileContent = JSON.stringify(db); const metadata = { name: 'OS_GEO_Backup.json', mimeType: 'application/json' };
+            let fileId = await localizarArquivoNoDrive(); let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'; let method = 'POST';
+            if(fileId) { url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`; method = 'PATCH'; }
+            const form = new FormData(); form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' })); form.append('file', new Blob([fileContent], { type: 'application/json' }));
+            try { let res = await fetch(url, { method, headers: { Authorization: `Bearer ${googleAccessToken}` }, body: form }); let respData = await res.json(); if(respData.id) currentDriveFileId = respData.id; if(!silent) mostrarToast("☁️ Salvo no Google Drive!", "var(--success)"); } catch(e) { if(!silent) { mostrarToast("Falha no upload.", "var(--danger)"); } }
+            isSyncing = false; setTimeout(esconderDriveToast, 1500);
+        }
+
+        function executarSaveGoogleDriveForce() { document.getElementById('config-menu').classList.remove('show'); salvarNoGoogleDriveBackground(false); }
+
+        function atualizarBancoDados() {
+            db.lastUpdated = Date.now(); localStorage.setItem('O.SGestão&OficinaDB', JSON.stringify(db)); executarAutoSaveLocal();
+            if(googleAccessToken) { clearTimeout(pendingSaveTimeout); pendingSaveTimeout = setTimeout(() => salvarNoGoogleDriveBackground(true), 1500); }
+        }
+
+        async function configurarAutoSave() { try { autoSaveDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' }); let btn = document.getElementById('btn-autosave'); btn.innerHTML = '✅ Salvar Automático Ativo'; btn.style.background = 'var(--success)'; btn.style.color = '#fff'; mostrarToast("Diretório de segurança configurado!", "var(--success)"); } catch(err) { mostrarToast("Auto-save cancelado.", "var(--danger)"); } }
+        async function executarAutoSaveLocal() { if(!autoSaveDirHandle) return; try { let agora = new Date(); let dataStr = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(agora.getDate()).padStart(2,'0')}_${String(agora.getHours()).padStart(2,'0')}-${String(agora.getMinutes()).padStart(2,'0')}`; let fileName = `BackupOficina_${dataStr}.json`; const fileHandle = await autoSaveDirHandle.getFileHandle(fileName, { create: true }); const writable = await fileHandle.createWritable(); await writable.write(JSON.stringify(db, null, 2)); await writable.close(); } catch(err) { } }
+        function mostrarToast(msg, cor = 'var(--primary)') { let container = document.getElementById('toastContainer'); let toast = document.createElement('div'); toast.className = 'toast'; toast.style.borderLeftColor = cor; toast.innerText = msg; container.appendChild(toast); setTimeout(() => toast.classList.add('show'), 10); setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 600); }, 5000); }
+        function verificarAlertasEstoque() { let faltas = db.estoque.filter(i => i.qtd < 3).map(i => i.nome); if(faltas.length) mostrarToast(`⚠️ Atenção: ${faltas.length} peça(s) com estoque baixo!`, "var(--accent)"); }
+        function verificarNotificacoesFinanceiras() { if (!db.historicoAlertas) db.historicoAlertas = { semana: '', mes: '', ano: '' }; let hoje = new Date(); let atualMes = obterMesStr(hoje); let atualAno = obterAnoStr(hoje); let salvou = false; if (db.historicoAlertas.mes !== atualMes) { mostrarToast(`📅 Novo mês iniciado! Bem-vindo(a) a ${atualMes.split('-')[1]}/${atualMes.split('-')[0]}`, 'var(--accent)'); db.historicoAlertas.mes = atualMes; salvou = true; } if (db.historicoAlertas.ano !== atualAno) { mostrarToast(`🎉 Feliz Ano Novo, ${db.config.empresa}!`, 'var(--success)'); db.historicoAlertas.ano = atualAno; salvou = true; } if(salvou) atualizarBancoDados(); }
+        function fecharModal() { document.getElementById('customModal').classList.remove('show'); osEdicaoAtual = null; }
+        
+        function confirmarSair() { document.getElementById('config-menu').classList.remove('show'); document.getElementById('modalContent').innerHTML = `<h3 style="margin-bottom:12px;">🔒 Deseja desconectar?</h3><p style="margin-bottom:20px;">Seus dados já estão salvos.</p><div style="display:flex; gap:12px; justify-content:center;"><button class="btn btn-secondary" onclick="fecharModal()">Voltar</button><button class="btn btn-danger btn-action-principal" onclick="executarSair()">Sair</button></div>`; document.getElementById('customModal').classList.add('show'); }
+        function executarSair() { atualizarBancoDados(); document.getElementById('modalContent').innerHTML = `<div class="loader"></div><h3 style="color:var(--primary);">Fechando sessão...</h3>`; setTimeout(() => location.reload(), 1500); }
+        function confirmarResetGeral() { document.getElementById('config-menu').classList.remove('show'); document.getElementById('modalContent').innerHTML = `<h3 style="color:var(--danger); margin-bottom:15px;">⚠️ RESET DO SISTEMA</h3><p style="margin-bottom:20px;">Tem certeza? <span style="color:var(--accent);">Todos os dados serão apagados.</span></p><div style="display:flex; gap:12px;"><button class="btn btn-secondary" onclick="fecharModal()">CANCELAR</button><button class="btn btn-danger btn-action-principal" onclick="executarResetGeral()">APAGAR TUDO</button></div>`; document.getElementById('customModal').classList.add('show'); }
+        function executarResetGeral() { db.clientes = []; db.fornecedores = []; db.financas = []; db.estoque = []; db.maoObra = []; db.agendamentos = []; db.config.osCounter = 1000; atualizarBancoDados(); document.getElementById('modalContent').innerHTML = `<div style="font-size:50px;">✅</div><h3 style="color:var(--success);">Sistema Limpo</h3>`; setTimeout(() => location.reload(), 1500); }
+
+        async function exportarBackup() {
+            document.getElementById('config-menu').classList.remove('show'); let dataStr = JSON.stringify(db, null, 2); let blob = new Blob([dataStr], { type: "application/json" }); let defaultName = `Backup_Oficina_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+            try { if(window.showSaveFilePicker) { const handle = await window.showSaveFilePicker({ suggestedName: defaultName, types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] }); const writable = await handle.createWritable(); await writable.write(blob); await writable.close(); } else { let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = defaultName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); } document.getElementById('modalContent').innerHTML = `<div style="font-size:40px;">💾</div><h3 style="color:var(--success);">Exportado!</h3>`; document.getElementById('customModal').classList.add('show'); setTimeout(fecharModal, 2000); } catch(err) { if(err.name !== 'AbortError') mostrarToast("Falha ao salvar.", "var(--danger)"); }
+        }
+
+        function importarBackup(event) {
+            let file = event.target.files[0]; if(!file) return; let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let content = e.target.result.trim(); if(content.charCodeAt(0) === 0xFEFF) content = content.slice(1); let importDb = JSON.parse(content);
+                    if(importDb && importDb.config) { db = importDb; db.financas.forEach(f => { if(!f.categoria) { f.categoria = 'oficina'; f.subtipo = 'outro'; } }); if(!db.config.fechamento) db.config.fechamento = {aluguel:0, agua:0, energia:0, internet:0, tecnicos: []}; if(!db.agendamentos) db.agendamentos = []; if(!db.maoObra) db.maoObra = []; if(!db.config.cnpj) db.config.cnpj = ''; if(!db.config.endereco) db.config.endereco = ''; atualizarBancoDados(); document.getElementById('config-menu').classList.remove('show'); document.getElementById('modalContent').innerHTML = `<div class="loader"></div><h3 style="color:var(--success);">Recuperando...</h3>`; document.getElementById('customModal').classList.add('show'); setTimeout(() => location.reload(), 1500); } else mostrarToast("Arquivo inválido.", "var(--danger)");
+                } catch(err) { mostrarToast("Arquivo corrompido.", "var(--danger)"); } event.target.value = '';
+            }; reader.readAsText(file, 'UTF-8');
+        }
+
+        function mascaraTelefone(v) { v = v.replace(/\D/g,""); if(v.length>11) v=v.slice(0,11); if(v.length>10) return v.replace(/^(\d{2})(\d{5})(\d{4})/,"($1) $2-$3"); if(v.length>2) return v.replace(/^(\d{2})(\d{0,5})/,"($1) $2"); return v; }
+        function mascaraPlaca(v) { v = v.replace(/[^a-zA-Z0-9]/g,"").toUpperCase(); if(v.length>3) return v.slice(0,3)+"-"+v.slice(3,7); return v; }
+        function mascaraChassi(v) { v = v.replace(/[^a-zA-Z0-9]/g,"").toUpperCase(); if(v.length>17) v=v.slice(0,17); return v; }
+        function confirmarZerarSaldos() { document.getElementById('modalContent').innerHTML = `<h3 style="margin-bottom:20px;">Apagar caixa geral?</h3><div style="display:flex; gap:12px;"><button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button><button class="btn btn-danger btn-action-principal" onclick="executarZerarSaldos()">Zerar</button></div>`; document.getElementById('customModal').classList.add('show'); }
+        function executarZerarSaldos() { db.financas = []; atualizarBancoDados(); renderizarDash(); document.getElementById('modalContent').innerHTML = `<div style="font-size:50px;">✅</div><h3 style="color:var(--success);">Caixa Limpo</h3>`; setTimeout(fecharModal, 2000); }
+        function atualizarNomeArquivo(input) { let span = document.getElementById('nome-arquivo-logo'); if(input.files && input.files.length) span.innerText = "✅ Imagem Carregada"; else span.innerText = "📁 Adicionar Logotipo"; }
+        
+        function atualizarTextosConfig() {
+            document.getElementById('versao-app').innerText = APP_VERSION;
+            if(!document.getElementById('view-inicio').classList.contains('hidden')) renderizarInicio();
+        }
+        atualizarTextosConfig();
+
+        function iniciarSessaoSistema() {
+            let overlay = document.getElementById('startup-overlay'); overlay.classList.remove('hidden', 'fade-out'); realizarVarreduraFinanceira();
+            if(db.config.tutorialCount === undefined) db.config.tutorialCount = 0; if(!db.config.tutorialSkipped && db.config.tutorialCount < 5) { db.config.tutorialCount++; atualizarBancoDados(); }
+            setTimeout(() => { overlay.classList.add('fade-out'); setTimeout(() => { overlay.classList.add('hidden'); document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden'); verificarAlertasEstoque(); navegar('inicio'); setTimeout(checarNovidades, 800); }, 500); }, 600);
+        }
+
+        function toggleConfig() { 
+            document.getElementById('config-menu').classList.toggle('show'); 
+            document.getElementById('cfg-empresa').value = db.config.empresa || ''; 
+            document.getElementById('cfg-cnpj').value = db.config.cnpj || ''; 
+            document.getElementById('cfg-endereco').value = db.config.endereco || ''; 
+            document.getElementById('cfg-valor-hora').value = db.config.valorHora || 120;
+            document.getElementById('cfg-tema').value = db.config.tema; 
+        }
+        
+        function processarImagemLogo(file, callback) {
+            let reader = new FileReader();
+            reader.onload = e => { 
+                let img = new Image(); 
+                img.onload = () => { 
+                    let canvas = document.createElement('canvas'); 
+                    let MAX = 400; // Reduz o tamanho da imagem para caber folgado no DB local
+                    let w = img.width, h = img.height; 
+                    if(w > h) { if(w > MAX) { h *= MAX / w; w = MAX; } } 
+                    else { if(h > MAX) { w *= MAX / h; h = MAX; } } 
+                    canvas.width = w; canvas.height = h; 
+                    let ctx = canvas.getContext('2d'); 
+                    ctx.drawImage(img, 0, 0, w, h); 
+                    // Retorna um Base64 de alta qualidade e com transparência
+                    callback(canvas.toDataURL('image/png', 0.9)); 
+                }; 
+                img.src = e.target.result; 
+            }; 
+            reader.readAsDataURL(file);
+        }
+
+        function salvarConfig(e) { 
+            e.stopPropagation(); 
+            let emp = document.getElementById('cfg-empresa').value; 
+            let cnpj = document.getElementById('cfg-cnpj').value; 
+            let end = document.getElementById('cfg-endereco').value; 
+            let valorHora = parseFloat(document.getElementById('cfg-valor-hora').value);
+            
+            if(emp) db.config.empresa = emp; 
+            db.config.cnpj = cnpj; 
+            db.config.endereco = end; 
+            if(!isNaN(valorHora) && valorHora > 0) db.config.valorHora = valorHora;
+
+            let logoInput = document.getElementById('cfg-logo'); 
+            if(logoInput.files && logoInput.files[0]) { 
+                processarImagemLogo(logoInput.files[0], (imgFormatada) => { 
+                    db.config.logo = imgFormatada; finalizarSalvamento(); 
+                }); 
+            } else { finalizarSalvamento(); } 
+        }
+        
+        function finalizarSalvamento() { atualizarBancoDados(); atualizarTextosConfig(); document.getElementById('config-menu').classList.remove('show'); document.getElementById('modalContent').innerHTML = `<div style="font-size:40px;">✅</div><h3 style="color:var(--success);">Perfil Salvo!</h3>`; document.getElementById('customModal').classList.add('show'); setTimeout(fecharModal, 1500); }
+        
+        function aplicarTema(temaClass) { document.body.className = temaClass; db.config.tema = temaClass; atualizarBancoDados(); updateThemeColorMeta(); if(typeof renderizarInicio === 'function' && !document.getElementById('view-inicio').classList.contains('hidden')) renderizarInicio(); if(typeof renderizarDash === 'function' && !document.getElementById('view-gestao').classList.contains('hidden')) renderizarDash(); if(typeof renderizarEstoque === 'function' && !document.getElementById('view-estoque').classList.contains('hidden')) renderizarEstoque(); if(typeof renderizarAgendaDiaria === 'function' && !document.getElementById('view-agendamento').classList.contains('hidden')) renderizarAgendaDiaria(); }
+
+        function scrollNav(direction) { let nav = document.getElementById('navLinks'); nav.scrollBy({ left: direction * 200, behavior: 'smooth' }); }
+
+        function navegar(aba) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
+            let btn = document.querySelector(`.menu-btn[onclick="navegar('${aba}')"]`); if(btn) btn.classList.add('active');
+            let viewId = `view-${aba}`;
+            let viewEl = document.getElementById(viewId); if(viewEl) viewEl.classList.remove('hidden');
+            exibirTutorial(aba);
+            
+            if(aba === 'inicio') renderizarInicio();
+            if(aba === 'clientes') { voltarMenuClientes(); renderizarUltimasOSGeral(); }
+            if(aba === 'fornecedores') renderizarFornecedores();
+            if(aba === 'gestao') renderizarDash();
+            if(aba === 'estoque') renderizarEstoque();
+            if(aba === 'marketing') renderizarMarketing();
+            if(aba === 'agendamento') renderizarAgendaDiaria();
+            if(aba === 'maoobra') renderizarMaoObra();
+        }
+
+        /* ====== LOGICA STATUS O.S. ====== */
+        function alterarStatusOS(e, cId, sIdx, novoStatus) {
+            if(e) e.stopPropagation();
+            let c = db.clientes.find(x => x.id === cId);
+            let s = c.servicos[sIdx];
+            s.statusOs = novoStatus;
+            s.concluida = (novoStatus === 'Faturada' || novoStatus === 'Fechada');
+
+            db.financas = db.financas.filter(f => f.osRef !== s.osNumber);
+            if(novoStatus === 'Faturada') {
+                if(s.maoObra > 0) db.financas.push({ osRef: s.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'mao_obra', desc: `OS ${s.osNumber} - Mão de Obra`, valor: s.maoObra, data: Date.now() });
+                if(s.pecas > 0) db.financas.push({ osRef: s.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'pecas', desc: `OS ${s.osNumber} - Peças Faturadas`, valor: s.pecas, data: Date.now() + 1 });
+            }
+
+            atualizarBancoDados();
+            mostrarToast("Status atualizado: " + novoStatus, "var(--success)");
+            if(document.querySelector('.menu-btn[onclick="navegar(\'inicio\')"]').classList.contains('active')) renderizarInicio();
+            if(!document.getElementById('view-clientes').classList.contains('hidden') && document.getElementById('sub-acompanhar-os').classList.contains('hidden')) renderizarUltimasOSGeral();
+            if(!document.getElementById('sub-acompanhar-os').classList.contains('hidden')) renderAcompanhamentoPage(cId);
+        }
+
+        /* ====== INICIO ====== */
+        function renderizarInicio() {
+            verificarNotificacoesFinanceiras();
+            let logoHtml = db.config.logo ? `<div style="width:70px; height:70px; border-radius:12px; display:flex; align-items:center; justify-content:center; overflow:hidden;"><img src="${db.config.logo}" style="max-width:100%; max-height:100%; object-fit:contain; transform: scale(1.2);"></div>` : `<div style="width:70px; height:70px; border-radius:12px; background:var(--primary); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:26px; color:var(--btn-text);">TP</div>`;
+            document.getElementById('saudacao-usuario').innerHTML = `<div style="display:flex; align-items:center; gap:20px;"><h2 style="font-size:26px;">Bem-vindo, <br><span style="color:var(--primary);">${db.config.empresa}</span></h2> ${logoHtml}</div>`;
+            let lista = document.getElementById('lista-inicio-servicos'); lista.innerHTML = '';
+            let hoje = new Date(); hoje.setHours(23,59,59,999); let limite = new Date(); limite.setDate(hoje.getDate() - 60);
+            let recentes = [];
+            db.clientes.forEach(c => { c.servicos.forEach((s, idx) => { if(s.essencial && s.statusOs !== 'Faturada' && s.statusOs !== 'Fechada') { let partes = s.data.split('/'); if(partes.length===3) { let d = new Date(partes[2], partes[1]-1, partes[0]); if(d >= limite && d <= hoje) recentes.push({ clienteNome: c.nome, clienteId: c.id, servicoIndex: idx, dataObj: d, sObj: s }); } } }); });
+            recentes.sort((a,b) => b.dataObj - a.dataObj);
+            if(!recentes.length) { lista.innerHTML = '<p style="color:var(--text-muted);">Nenhum serviço pendente no painel.</p>'; return; }
+            recentes.forEach(x => {
+                let s = x.sObj;
+                let diff = Math.ceil((hoje - x.dataObj) / (1000*60*60*24));
+                let alerta = diff >= 7 ? `<div style="color:var(--danger); font-size:11px; margin-top:8px;">⚠️ OS aberta há ${diff} dias!</div>` : '';
+                
+                let selectHtml = `<select onchange="alterarStatusOS(event, ${x.clienteId}, ${x.servicoIndex}, this.value)" style="height:34px; margin:0; font-size:12px; font-weight:bold; padding-top:0; padding-bottom:0;">
+                    ${['Aberta', 'Faturada', 'Aguardando Peças', 'Devedor', 'Em Retorno', 'Fechada'].map(st => `<option value="${st}" ${s.statusOs === st ? 'selected' : ''}>${st}</option>`).join('')}
+                </select>`;
+
+                lista.innerHTML += `<div class="card-item" style="border-left-color:var(--accent);"><div><strong style="font-size:15px;">${x.clienteNome} <span style="font-size:12px;">OS ${s.osNumber || 'S/N'}</span></strong><div style="margin:6px 0; font-size:13px;">${s.nome}</div>${alerta}</div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; flex-wrap:wrap; gap:10px;"><strong style="color:var(--success); font-size:15px;">${s.total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong><div style="display:flex; flex:1; justify-content:flex-end;">${selectHtml}</div></div></div>`;
+            });
+        }
+        
+        function salvarCliente() {
+            let nome = document.getElementById('cad-nome').value; if(!nome) return mostrarToast("Informe o nome do cliente.", "var(--danger)");
+            db.clientes.push({ id: Date.now(), nome, tel: document.getElementById('cad-tel').value, email: document.getElementById('cad-email').value, modelo: document.getElementById('cad-modelo').value, placa: document.getElementById('cad-placa').value, chassi: document.getElementById('cad-chassi').value, km: document.getElementById('cad-km').value, servicos: [] });
+            atualizarBancoDados(); document.querySelectorAll('#view-cadastro input').forEach(i => i.value = ''); navegar('clientes'); mostrarToast("👤 Cliente cadastrado!", "var(--success)");
+        }
+
+        /* ====== CENTRAL DE CLIENTES E SUBVIEWS ====== */
+        function renderizarUltimasOSGeral() {
+            let todasOS = [];
+            db.clientes.forEach(c => {
+                c.servicos.forEach((s, idx) => {
+                    todasOS.push({ clienteId: c.id, clienteNome: c.nome, servicoIndex: idx, sObj: s });
+                });
+            });
+            todasOS.sort((a, b) => b.sObj.osNumber - a.sObj.osNumber);
+            let top10 = todasOS.slice(0, 10);
+            
+            let lista = document.getElementById('lista-ultimas-os');
+            if(!top10.length) { lista.innerHTML = '<p style="color:var(--text-muted);">Nenhuma O.S. registrada ainda.</p>'; return; }
+            
+            lista.innerHTML = top10.map(x => {
+                let s = x.sObj;
+                let corStatus = s.statusOs === 'Faturada' ? 'var(--success)' : (s.statusOs === 'Devedor' ? 'var(--danger)' : 'var(--accent)');
+                return `
+                <div class="history-card" style="border-left-color:${corStatus}" onclick="abrirDetalhesServico(${x.clienteId}, ${x.servicoIndex})">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <strong>OS ${s.osNumber}</strong>
+                        <span style="font-size:10px; font-weight:bold; background:${corStatus}; color:#000; padding:2px 6px; border-radius:4px; max-width:50%; text-align:right;">${s.statusOs}</span>
+                    </div>
+                    <div style="font-size:13px; font-weight:bold; margin-top:6px;">👤 ${x.clienteNome}</div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${s.nome}</div>
+                    <div style="margin-top:6px; font-weight:bold; color:var(--success); font-size:14px;">${s.total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function abrirSubViewCliente(subViewId) {
+            document.getElementById('clientes-opcoes').classList.add('hidden');
+            document.getElementById('ultimas-os-geral').classList.add('hidden');
+            
+            document.getElementById('sub-abrir-os').classList.add('hidden');
+            document.getElementById('sub-acompanhar-os').classList.add('hidden');
+            document.getElementById('sub-historico-os').classList.add('hidden');
+            
+            document.getElementById(`sub-${subViewId}`).classList.remove('hidden');
+            
+            // resets e ajudas visiveis
+            document.getElementById('busca-cli-abrir').value = ''; document.getElementById('sugestoes-cli-abrir').style.display = 'none';
+            if(document.getElementById('help-cli-abrir')) document.getElementById('help-cli-abrir').style.display = 'flex';
+            
+            document.getElementById('busca-cli-acompanhar').value = ''; document.getElementById('sugestoes-cli-acompanhar').style.display = 'none';
+            if(document.getElementById('help-cli-acompanhar')) document.getElementById('help-cli-acompanhar').style.display = 'flex';
+            
+            document.getElementById('busca-cli-historico').value = ''; document.getElementById('sugestoes-cli-historico').style.display = 'none';
+            if(document.getElementById('help-cli-historico')) document.getElementById('help-cli-historico').style.display = 'flex';
+            
+            document.getElementById('container-nova-os').classList.add('hidden');
+            document.getElementById('acomp-lista-container').classList.add('hidden');
+            document.getElementById('historico-servicos-container').classList.add('hidden');
+            document.getElementById('ficha-dados-cliente').classList.add('hidden');
+        }
+
+        function voltarMenuClientes() {
+            document.getElementById('clientes-opcoes').classList.remove('hidden');
+            document.getElementById('ultimas-os-geral').classList.remove('hidden');
+            
+            document.getElementById('sub-abrir-os').classList.add('hidden');
+            document.getElementById('sub-acompanhar-os').classList.add('hidden');
+            document.getElementById('sub-historico-os').classList.add('hidden');
+            
+            renderizarUltimasOSGeral();
+        }
+
+        function buscarCliGeneric(termo, contexto) {
+            let div = document.getElementById(`sugestoes-cli-${contexto}`);
+            let helpCard = document.getElementById(`help-cli-${contexto}`);
+
+            if(termo.length < 2) {
+                div.style.display = 'none';
+                if(helpCard) helpCard.style.display = 'flex'; 
+                return;
+            }
+
+            if(helpCard) helpCard.style.display = 'none'; 
+
+            let t = termo.toLowerCase().trim();
+            let tNum = t.replace(/\D/g, '');
+
+            let filtrados = db.clientes.filter(c => {
+                let n = c.nome ? c.nome.toLowerCase() : '';
+                let p = c.placa ? c.placa.toLowerCase() : '';
+                let tel = c.tel ? c.tel.replace(/\D/g, '') : '';
+                let email = c.email ? c.email.toLowerCase() : '';
+                let chassi = c.chassi ? c.chassi.toLowerCase() : '';
+
+                let matchCli = n.includes(t) || p.includes(t) || email.includes(t) || chassi.includes(t) || (tNum && tel.includes(tNum));
+
+                let matchOS = false;
+                if (c.servicos && c.servicos.length > 0) {
+                    matchOS = c.servicos.some(s => 
+                        (s.osNumber && s.osNumber.toString() === tNum && tNum.length > 0) ||
+                        (s.nome && s.nome.toLowerCase().includes(t)) ||
+                        (s.diag && s.diag.toLowerCase().includes(t)) ||
+                        (s.relatorio && s.relatorio.toLowerCase().includes(t))
+                    );
+                }
+                return matchCli || matchOS;
+            });
+
+            if(!filtrados.length) { 
+                div.style.display = 'none'; 
+                return; 
+            }
+            div.style.display = 'block'; 
+            div.innerHTML = filtrados.map(c => {
+                let lastOS = c.servicos && c.servicos.length ? c.servicos[c.servicos.length-1].osNumber : 'N/A';
+                return `<div onclick="selecionarCliGeneric(${c.id}, '${contexto}')">
+                    <strong style="color: var(--primary);">${c.nome}</strong> 
+                    <span style="font-size:11px; color:var(--text-muted); display: block; margin-top: 3px;">
+                        Placa: ${c.placa || 'S/P'} | Tel: ${c.tel || 'S/T'} | Última OS: ${lastOS}
+                    </span>
+                </div>`;
+            }).join('');
+        }
+
+        function selecionarCliGeneric(cId, contexto) {
+            document.getElementById(`sugestoes-cli-${contexto}`).style.display = 'none';
+            let c = db.clientes.find(x => x.id === cId);
+            if(contexto === 'abrir') {
+                document.getElementById('busca-cli-abrir').value = `${c.nome} (${c.placa || 'S/Placa'})`;
+                abrirFormularioNovaOS(cId);
+            } else if(contexto === 'acompanhar') {
+                document.getElementById('busca-cli-acompanhar').value = `${c.nome} (${c.placa || 'S/Placa'})`;
+                currentPageAcomp = 1;
+                document.getElementById('acomp-lista-container').classList.remove('hidden');
+                renderAcompanhamentoPage(cId);
+            } else if(contexto === 'historico') {
+                document.getElementById('busca-cli-historico').value = `${c.nome} (${c.placa || 'S/Placa'})`;
+                document.getElementById('historico-servicos-container').classList.remove('hidden');
+                document.getElementById('ficha-dados-cliente').classList.remove('hidden');
+                renderizarCabecalhoCliente(cId);
+                renderizarHistoricoPDFs(c);
+            }
+        }
+
+        function renderizarCabecalhoCliente(id) {
+            let c = db.clientes.find(x => x.id === id);
+            document.getElementById('ficha-dados-cliente').innerHTML = `<div id="ficha-modo-leitura"><div style="display:flex; justify-content:space-between;"><div><h2 style="color:var(--primary);">${c.nome}</h2><p><strong>${c.modelo || '-'}</strong> | ${c.placa || '-'} | Chassi: ${c.chassi || '-'}</p><p>KM: <span style="color:var(--accent);">${c.km || '---'}</span></p><p>📞 ${c.tel || '---'} | ✉️ ${c.email || '---'}</p></div><button class="btn btn-secondary" onclick="toggleEdicaoCliente()">📝 Editar Cadastro</button></div></div><div id="ficha-modo-edicao" class="hidden"><h3>Atualizar Dados</h3><div class="grid-2"><input id="edit-nome" value="${c.nome}"><input id="edit-tel" value="${c.tel || ''}" oninput="this.value = mascaraTelefone(this.value)"></div><input id="edit-email" value="${c.email || ''}"><div class="grid-2"><input id="edit-modelo" value="${c.modelo || ''}"><input id="edit-placa" value="${c.placa || ''}" oninput="this.value = mascaraPlaca(this.value)"></div><div class="grid-2"><input id="edit-chassi" value="${c.chassi || ''}" oninput="this.value = mascaraChassi(this.value)"><input id="edit-km" value="${c.km || ''}"></div><div style="margin-top:15px; display:flex; gap:10px;"><button class="btn btn-success" onclick="salvarEdicaoCliente(${id})">Salvar</button><button class="btn btn-secondary" onclick="toggleEdicaoCliente()">Cancelar</button></div></div>`;
+        }
+        function toggleEdicaoCliente() { document.getElementById('ficha-modo-leitura').classList.toggle('hidden'); document.getElementById('ficha-modo-edicao').classList.toggle('hidden'); }
+        function salvarEdicaoCliente(id) { let c = db.clientes.find(x => x.id === id); c.nome = document.getElementById('edit-nome').value; c.tel = document.getElementById('edit-tel').value; c.email = document.getElementById('edit-email').value; c.modelo = document.getElementById('edit-modelo').value; c.placa = document.getElementById('edit-placa').value; c.chassi = document.getElementById('edit-chassi').value; c.km = document.getElementById('edit-km').value; atualizarBancoDados(); renderizarCabecalhoCliente(id); mostrarToast("Perfil salvo!", "var(--success)"); }
+
+        function renderAcompanhamentoPage(cId) {
+            let c = db.clientes.find(x => x.id === cId);
+            let servicos = [...c.servicos].reverse(); // newest first
+            let totalPages = Math.ceil(servicos.length / 10) || 1;
+            if(currentPageAcomp > totalPages) currentPageAcomp = totalPages;
+            if(currentPageAcomp < 1) currentPageAcomp = 1;
+
+            let start = (currentPageAcomp - 1) * 10;
+            let end = start + 10;
+            let pageItems = servicos.slice(start, end);
+
+            let html = ``;
+            if(!pageItems.length) {
+                html = `<p style="color:var(--text-muted); text-align:center;">Nenhum serviço registrado para este cliente.</p>`;
+            } else {
+                html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="color:var(--primary); margin:0;">Status e Andamento</h3><span style="font-size:12px; color:var(--text-muted);">Página ${currentPageAcomp}/${totalPages}</span></div>`;
+                html += pageItems.map(s => {
+                    let originalIndex = c.servicos.indexOf(s);
+                    let corCard = s.statusOs === 'Faturada' ? 'var(--success)' : (s.statusOs === 'Devedor' ? 'var(--danger)' : 'var(--accent)');
+                    return `
+                    <div class="card-item" style="border-left-color:${corCard};">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <strong style="font-size:16px;">OS #${s.osNumber}</strong>
+                                <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Data: ${s.data} | ${s.nome}</div>
+                            </div>
+                            <div style="display:flex; flex:1; justify-content:flex-end;">
+                                <select onchange="alterarStatusOS(event, ${cId}, ${originalIndex}, this.value)" style="background:var(--bg-color); height:34px; padding-top:0; padding-bottom:0;">
+                                    ${['Aberta', 'Faturada', 'Aguardando Peças', 'Devedor', 'Em Retorno', 'Fechada'].map(st => `<option value="${st}" ${s.statusOs === st ? 'selected' : ''}>${st}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); font-size:12px; color:var(--text-main);">
+                            <strong>Parecer Técnico / Relatório:</strong><br>
+                            ${s.relatorio ? s.relatorio.replace(/\n/g, '<br>') : 'Nenhum relatório preenchido ainda.'}
+                        </div>
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <button class="btn btn-secondary" style="font-size:11px; padding:6px 10px; min-height:auto;" onclick="abrirDetalhesServico(${cId}, ${originalIndex})">Editar OS Completa</button>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                html += `<div style="margin-top:20px; display:flex; justify-content:center; gap:15px;">
+                    <button class="btn btn-secondary" onclick="currentPageAcomp--; renderAcompanhamentoPage(${cId})" ${currentPageAcomp===1?'disabled':''}>⬅ Anterior</button>
+                    <button class="btn btn-secondary" onclick="currentPageAcomp++; renderAcompanhamentoPage(${cId})" ${currentPageAcomp===totalPages?'disabled':''}>Próxima ➡</button>
+                </div>`;
+            }
+            document.getElementById('acomp-lista').innerHTML = html;
+        }
+
+        function abrirFormularioNovaOS(cId) {
+            clienteAtualId = cId;
+            let c = db.clientes.find(x => x.id === cId);
+            pecasTempNovaOS = [];
+            
+            document.getElementById('container-nova-os').innerHTML = `
+                <div class="nova-os-form">
+                    <h3>📝 Nova Ordem de Serviço</h3>
+                    <div style="margin-bottom:15px; font-size:13px; color:var(--primary);">Cliente Selecionado: <strong>${c.nome}</strong> | Veículo: <strong>${c.modelo||'N/A'}</strong></div>
+                    <div class="os-section">
+                        <div class="os-section-title">📌 Informações Básicas</div>
+                        <div class="grid-2">
+                            <div style="position:relative;">
+                                <input type="text" id="srv-nome" placeholder="Título do Serviço" oninput="buscarServicoPadrao(this.value)">
+                                <div id="sugestoes-mo" class="autocomplete-sugestoes"></div>
+                            </div>
+                            <textarea id="srv-diag" placeholder="Diagnóstico / Alegação do Cliente" style="min-height:80px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="os-section">
+                        <div class="os-section-title">⏱️ Tempo e Valores</div>
+                        <div class="grid-2">
+                            <div><label style="font-size:12px;">KM Atual</label><input type="number" id="srv-km-atual" value="${c.km||''}" placeholder="Ex: 25000"></div>
+                            <div><label style="font-size:12px;">Tempo Estimado (Horas)</label><input type="number" id="srv-tempo" placeholder="Ex: 2" oninput="calcularServico()"></div>
+                        </div>
+                        <div class="grid-2">
+                            <div><label style="font-size:12px;">Valor M.O (R$ ${db.config.valorHora}/h)</label><input type="text" id="srv-val-mao" readonly style="background:var(--bg-color); font-weight:bold;"></div>
+                            <div><label style="font-size:12px;">Valor Peças (R$)</label><input type="text" id="srv-pecas" value="0.00" readonly style="color:var(--accent); font-weight:bold;"></div>
+                        </div>
+                        <div><label style="font-size:12px;">Valor Total Estimado (R$)</label><input type="text" id="srv-total" readonly style="color:var(--success); font-weight:bold; font-size:18px; border:1px solid var(--success); background:rgba(46,204,113,0.05);"></div>
+                    </div>
+                    <div class="os-section">
+                        <div class="os-section-title">🔧 Peças / Materiais Livres</div>
+                        <div class="peca-row">
+                            <input type="text" id="srv-nova-peca-nome" placeholder="Descrição da Peça">
+                            <input type="number" id="srv-nova-peca-valor" placeholder="V. Unit (R$)" step="0.01">
+                            <input type="number" id="srv-nova-peca-qtd" value="1" min="1" placeholder="Qtd">
+                            <button class="btn btn-primary" onclick="addPecaNovaOS()" style="width:100%;">+ Add</button>
+                        </div>
+                        <div id="lista-nova-os-pecas" style="margin-top:10px;"></div>
+                    </div>
+                    <div class="checkbox-container"><input type="checkbox" id="srv-essencial"><label for="srv-essencial" style="color:var(--accent);">🚩 Fixar como Serviço Essencial no Painel</label></div>
+                    <button class="btn btn-primary btn-action-principal" style="width:100%; padding:12px;" onclick="salvarServico()">Criar Ordem de Serviço</button>
+                </div>
+            `;
+            document.getElementById('container-nova-os').classList.remove('hidden');
+            renderizarPecasNovaOS();
+        }
+
+        function addPecaNovaOS() {
+            let nome = document.getElementById('srv-nova-peca-nome').value.trim();
+            let valorUnit = parseFloat(document.getElementById('srv-nova-peca-valor').value);
+            let qtd = parseInt(document.getElementById('srv-nova-peca-qtd').value);
+            if(!nome || isNaN(valorUnit) || isNaN(qtd) || qtd <= 0 || valorUnit < 0) return mostrarToast("Preencha Nome, Valor e Quantidade válidos!", "var(--danger)");
+            pecasTempNovaOS.push({ id: Date.now(), nome: nome, qtd: qtd, valorUnit: valorUnit });
+            document.getElementById('srv-nova-peca-nome').value = ''; document.getElementById('srv-nova-peca-valor').value = ''; document.getElementById('srv-nova-peca-qtd').value = 1;
+            renderizarPecasNovaOS(); calcularServico();
+        }
+        function removerPecaNovaOS(index) { pecasTempNovaOS.splice(index,1); renderizarPecasNovaOS(); calcularServico(); }
+        function renderizarPecasNovaOS() {
+            let div = document.getElementById('lista-nova-os-pecas'); div.innerHTML = '';
+            if(!pecasTempNovaOS.length) { div.innerHTML = '<span style="color:var(--text-muted);">Nenhuma peça/material informado.</span>'; return; }
+            pecasTempNovaOS.forEach((p,idx) => { div.innerHTML += `<div style="display:flex; justify-content:space-between; background:var(--card-bg); padding:8px; border-radius:6px; margin-bottom:5px; border:1px solid var(--border-color);"><span>${p.nome}</span><span>${p.qtd} un. x ${p.valorUnit.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span><strong>${(p.qtd*p.valorUnit).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong><button style="background:none; border:none; color:var(--danger); cursor:pointer;" onclick="removerPecaNovaOS(${idx})">✖</button></div>`; });
+        }
+        function calcularServico() {
+            let tempo = parseFloat(document.getElementById('srv-tempo').value) || 0; let vHora = db.config.valorHora;
+            let totalPecas = pecasTempNovaOS.reduce((acc,p) => acc + (p.qtd * p.valorUnit), 0);
+            document.getElementById('srv-pecas').value = totalPecas.toFixed(2);
+            document.getElementById('srv-val-mao').value = (tempo * vHora).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            document.getElementById('srv-total').value = ((tempo * vHora) + totalPecas).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        }
+        function salvarServico() {
+            let nomeSrv = document.getElementById('srv-nome').value; let vHora = db.config.valorHora; let tempo = parseFloat(document.getElementById('srv-tempo').value) || 0;
+            let totalPecas = pecasTempNovaOS.reduce((acc,p) => acc + (p.qtd * p.valorUnit), 0); let kmAtual = document.getElementById('srv-km-atual').value;
+            if(!nomeSrv) return mostrarToast("Dê um título para a Ordem de Serviço.", "var(--danger)");
+            let c = db.clientes.find(x => x.id === clienteAtualId); if(kmAtual) c.km = kmAtual;
+            db.config.osCounter++; let numeroOS = db.config.osCounter; let essencial = document.getElementById('srv-essencial').checked;
+            
+            let pecasSalvar = []; pecasTempNovaOS.forEach(pt => { pecasSalvar.push({ nome: pt.nome, qtd: pt.qtd, valorUnit: pt.valorUnit }); });
+            
+            c.servicos.push({ 
+                osNumber: numeroOS, kmOs: kmAtual, data: new Date().toLocaleDateString(), nome: nomeSrv, diag: document.getElementById('srv-diag').value, 
+                tempo, pecas: totalPecas, maoObra: (tempo * vHora), total: (tempo * vHora) + totalPecas, 
+                orcamento: { pecas: pecasSalvar, moExtra: 0, srvExtra: 0, status: 'Pendente' }, 
+                essencial, aprovado: true, concluida: false, statusOs: 'Aberta', nfse: false, nfe: false, galeria: [] 
+            });
+            
+            atualizarBancoDados(); pecasTempNovaOS = [];
+            document.getElementById('container-nova-os').classList.add('hidden');
+            document.getElementById('busca-cli-abrir').value = '';
+            renderizarUltimasOSGeral();
+            mostrarToast(`OS ${numeroOS} criada!`, "var(--success)");
+        }
+
+        function renderizarHistoricoPDFs(cliente, termo = '') {
+            let hist = document.getElementById('historico-servicos-container');
+            hist.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:20px;"><h3 style="color:var(--primary);">Todos os Serviços</h3><div class="search-wrapper" style="width:220px; margin-bottom:0;"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="input-busca-os" placeholder="Pesquisar Nº OS..." onkeyup="renderizarHistoricoPDFs(db.clientes.find(c=>c.id===${cliente.id}), this.value)" value="${termo}"></div></div><div id="lista-os-cards"></div>`;
+            let lista = document.getElementById('lista-os-cards');
+            let servicos = cliente.servicos.map((s,idx) => ({ s, idx })).reverse();
+            if(termo) servicos = servicos.filter(x => x.s.osNumber.toString().includes(termo) || x.s.nome.toLowerCase().includes(termo.toLowerCase()));
+            if(!servicos.length) { lista.innerHTML = '<p style="color:var(--text-muted);">Nada encontrado.</p>'; return; }
+            servicos.forEach(x => {
+                let s = x.s;
+                let corStatus = s.statusOs === 'Faturada' ? 'var(--success)' : 'var(--accent)';
+                lista.innerHTML += `
+                <div class="history-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong>OS ${s.osNumber} <span style="background:${corStatus}; color:#000; padding:2px 6px; border-radius:4px; font-size:10px;">${s.statusOs}</span></strong>
+                            <div style="margin-top:6px; font-size:12px;">Emissão: ${s.data} | ${s.nome}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <strong style="color:var(--success);">${s.total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong>
+                            <button class="btn btn-secondary" onclick="abrirDetalhesServico(${cliente.id}, ${x.idx})">Visualizar / PDF</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+        
+        function processarImagemGaleria(file, callback) {
+            let reader = new FileReader();
+            reader.onload = e => { let img = new Image(); img.onload = () => { let canvas = document.createElement('canvas'); let MAX = 800; let w = img.width, h = img.height; if(w > h) { if(w > MAX) { h *= MAX / w; w = MAX; } } else { if(h > MAX) { w *= MAX / h; h = MAX; } } canvas.width = w; canvas.height = h; let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); callback(canvas.toDataURL('image/jpeg', 0.6)); }; img.src = e.target.result; }; reader.readAsDataURL(file);
+        }
+        function adicionarFotosGaleria(cId, sIdx, input) { let s = db.clientes.find(x => x.id === cId).servicos[sIdx]; if(!s.galeria) s.galeria = []; let files = Array.from(input.files); let processed = 0; files.forEach(file => { processarImagemGaleria(file, base64 => { s.galeria.push(base64); processed++; if(processed === files.length) { atualizarBancoDados(); renderizarGaleriaServico(s); } }); }); }
+        function removerFotoGaleria(cId, sIdx, fotoIdx) { let s = db.clientes.find(x => x.id === cId).servicos[sIdx]; s.galeria.splice(fotoIdx,1); atualizarBancoDados(); renderizarGaleriaServico(s); }
+        function renderizarGaleriaServico(s) { let galeriaDiv = document.getElementById('os-galeria-preview'); if(!galeriaDiv) return; galeriaDiv.innerHTML = ''; if(s.galeria && s.galeria.length) s.galeria.forEach((foto,idx) => { galeriaDiv.innerHTML += `<div class="foto-preview"><img src="${foto}"><button onclick="removerFotoGaleria(${osEdicaoAtual.cId}, ${osEdicaoAtual.sIdx}, ${idx})">✖</button></div>`; }); else galeriaDiv.innerHTML = '<span style="font-size:11px;">Nenhuma foto.</span>'; }
+
+        function abrirDetalhesServico(clienteId, servicoIndex) {
+            let c = db.clientes.find(x => x.id === clienteId); let s = c.servicos[servicoIndex]; osEdicaoAtual = { cId: clienteId, sIdx: servicoIndex };
+            if(!s.orcamento) s.orcamento = { pecas: [], moExtra: 0, srvExtra: 0, status: 'Pendente' }; if(!s.galeria) s.galeria = [];
+            let box = document.getElementById('modalContent');
+            box.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:20px;"><h2 style="color:var(--primary);">OS ${s.osNumber || 'S/N'}</h2><span style="background:var(--primary); color:#fff; padding:4px 8px; border-radius:6px; font-weight:bold;">Status: ${s.statusOs}</span></div>
+            <div style="background:var(--bg-color); padding:15px; border-radius:8px; margin-bottom:20px;"><label>📄 Resumo Executivo (Laudo Téc):</label><textarea id="edit-os-relatorio">${s.relatorio || ''}</textarea>
+            <div class="grid-2"><div><label>💰 Mão de Obra (R$):</label><input type="number" id="edit-os-mo" value="${s.maoObra !== undefined ? s.maoObra : (s.tempo * db.config.valorHora)}" step="0.01"></div><div><label>⏱️ Tempo Cobrado (Hrs):</label><input type="number" id="edit-os-tempo" value="${s.tempo || ''}" step="0.1"></div></div>
+            <div class="grid-2"><div><label>🔧 Valor Total de Peças (R$):</label><input type="text" id="edit-os-pecas" value="${s.pecas || 0}" readonly></div><div><label>🛞 KM do Serviço:</label><input type="number" id="edit-os-kmos" value="${s.kmOs || c.km || ''}"></div></div>
+            <div class="checkbox-container"><input type="checkbox" id="edit-os-essencial" ${s.essencial ? 'checked' : ''}><label>Fixar no Painel Principal</label></div>
+            </div>
+            <div style="background:var(--bg-color); padding:15px; border-radius:8px; margin-bottom:20px;"><h3>📸 Evidências (Galeria)</h3><label class="custom-file-upload" style="padding:10px;"><input type="file" multiple accept="image/*" onchange="adicionarFotosGaleria(${clienteId}, ${servicoIndex}, this)">📷 Anexar Fotos</label><div id="os-galeria-preview" style="display:flex; gap:10px; overflow-x:auto; margin-top:10px;"></div></div>
+            <div style="background:var(--bg-color); padding:15px; border-radius:8px; margin-bottom:20px;"><div style="display:flex; justify-content:space-between;"><h3 style="color:var(--accent);">🔧 Lista de Peças / Orçamento</h3><span style="font-size:11px;">Entrada Manual Livre (Não afeta estoque)</span></div><div id="lista-orcamento-pecas" style="margin-bottom:15px;"></div><div class="peca-row"><input type="text" id="add-orc-nome" placeholder="Descrição da Peça / Serviço"><input type="number" id="add-orc-valor" placeholder="V. Unit (R$)" step="0.01"><input type="number" id="add-orc-qtd" value="1" min="1"><button class="btn btn-primary" onclick="addPecaOrcamento()" style="width:100%;">Inserir</button></div><div class="grid-2"><div><label>💰 Extras M.O (R$)</label><input type="number" id="add-orc-mo" value="${s.orcamento.moExtra}" onchange="salvarValoresFixosOrcamento()"></div><div><label>🔧 Serv. Terceiros (R$)</label><input type="number" id="add-orc-srvex" value="${s.orcamento.srvExtra}" onchange="salvarValoresFixosOrcamento()"></div></div><button class="btn btn-secondary" style="margin-top:10px;" onclick="aplicarOrcamentoNaOS(${clienteId}, ${servicoIndex})">⬇️ Consolidar Orçamento na OS</button></div>
+            <div style="display:flex; gap:10px; margin-bottom:15px;"><button class="btn btn-secondary" onclick="escolherCompartilhamento('pdf')">🖨️ Gerar PDF</button><button class="btn btn-success" style="background:#25D366; color:#020617;" onclick="escolherCompartilhamento('whatsapp')">💬 Enviar WhatsApp</button></div>
+            <div style="display:flex; gap:10px;"><button class="btn btn-secondary" onclick="fecharModal()">Voltar</button><button class="btn btn-danger" onclick="confirmarExclusaoOS(${clienteId}, ${servicoIndex})">Excluir</button><button class="btn btn-primary btn-action-principal" onclick="salvarAlteracoesOS(${clienteId}, ${servicoIndex})">Salvar Informações</button></div>`;
+            document.getElementById('customModal').classList.add('show'); renderizarPecasOrcamento(); renderizarGaleriaServico(s);
+        }
+        function salvarValoresFixosOrcamento() { if(!osEdicaoAtual) return; let s = db.clientes.find(x => x.id === osEdicaoAtual.cId).servicos[osEdicaoAtual.sIdx]; s.orcamento.moExtra = parseFloat(document.getElementById('add-orc-mo').value) || 0; s.orcamento.srvExtra = parseFloat(document.getElementById('add-orc-srvex').value) || 0; }
+        
+        function addPecaOrcamento() { if(!osEdicaoAtual) return; let s = db.clientes.find(x => x.id === osEdicaoAtual.cId).servicos[osEdicaoAtual.sIdx]; let nome = document.getElementById('add-orc-nome').value.trim(); let valorUnit = parseFloat(document.getElementById('add-orc-valor').value); let q = parseInt(document.getElementById('add-orc-qtd').value) || 1; if(!nome || isNaN(valorUnit) || isNaN(q) || q <= 0 || valorUnit < 0) return mostrarToast("Preencha Nome, Valor e Quantidade válidos!", "var(--danger)"); s.orcamento.pecas.push({ nome: nome, qtd: q, valorUnit: valorUnit }); atualizarBancoDados(); document.getElementById('add-orc-nome').value = ''; document.getElementById('add-orc-valor').value = ''; document.getElementById('add-orc-qtd').value = 1; renderizarPecasOrcamento(); }
+        function removerPecaOrcamento(idx) { if(!osEdicaoAtual) return; let s = db.clientes.find(x => x.id === osEdicaoAtual.cId).servicos[osEdicaoAtual.sIdx]; s.orcamento.pecas.splice(idx,1); atualizarBancoDados(); renderizarPecasOrcamento(); }
+        function renderizarPecasOrcamento() { if(!osEdicaoAtual) return; let s = db.clientes.find(x => x.id === osEdicaoAtual.cId).servicos[osEdicaoAtual.sIdx]; let div = document.getElementById('lista-orcamento-pecas'); div.innerHTML = ''; if(!s.orcamento.pecas.length) { div.innerHTML = '<span style="font-size:11px;">Nenhuma peça/material informado.</span>'; return; } let sum = 0; s.orcamento.pecas.forEach((p,idx) => { let total = p.qtd * p.valorUnit; sum += total; div.innerHTML += `<div style="display:flex; justify-content:space-between; background:var(--card-bg); padding:6px; border-radius:4px; margin-bottom:4px;"><span>${p.nome}</span><span>${p.qtd} un. x ${p.valorUnit.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span><span>${total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span><button style="background:none; border:none; color:var(--danger);" onclick="removerPecaOrcamento(${idx})">✖</button></div>`; }); document.getElementById('edit-os-pecas').value = sum.toFixed(2); }
+
+        function aplicarOrcamentoNaOS(cId, sIdx) { salvarValoresFixosOrcamento(); let s = db.clientes.find(x => x.id === cId).servicos[sIdx]; let totalPecas = s.orcamento.pecas.reduce((acc,p) => acc + (p.qtd * p.valorUnit), 0); let moTotal = (s.orcamento.moExtra || 0) + (s.orcamento.srvExtra || 0); document.getElementById('edit-os-pecas').value = totalPecas; document.getElementById('edit-os-mo').value = moTotal; mostrarToast("Consolidado!", "var(--success)"); }
+        function confirmarExclusaoOS(cId, sIdx) { document.getElementById('modalContent').innerHTML = `<h3 style="color:var(--danger);">Destruir OS?</h3><p>Peças não retornarão ao estoque.</p><div style="display:flex; gap:12px;"><button class="btn btn-secondary" onclick="abrirDetalhesServico(${cId}, ${sIdx})">CANCELAR</button><button class="btn btn-danger btn-action-principal" onclick="executarExclusaoOS(${cId}, ${sIdx})">EXCLUIR</button></div>`; }
+        function executarExclusaoOS(cId, sIdx) { let c = db.clientes.find(x => x.id === cId); if(c && c.servicos[sIdx]) { let s = c.servicos[sIdx]; db.financas = db.financas.filter(f => f.osRef !== s.osNumber); c.servicos.splice(sIdx,1); atualizarBancoDados(); renderizarUltimasOSGeral(); if(!document.getElementById('sub-historico-os').classList.contains('hidden')) renderizarHistoricoPDFs(c); fecharModal(); mostrarToast("OS removida.", "var(--danger)"); } }
+        
+        function salvarAlteracoesOS(cId, sIdx) { 
+            salvarValoresFixosOrcamento(); let c = db.clientes.find(x => x.id === cId); let s = c.servicos[sIdx]; 
+            s.relatorio = document.getElementById('edit-os-relatorio').value; s.maoObra = parseFloat(document.getElementById('edit-os-mo').value) || 0; 
+            s.pecas = parseFloat(document.getElementById('edit-os-pecas').value) || 0; s.tempo = parseFloat(document.getElementById('edit-os-tempo').value) || 0; 
+            s.kmOs = document.getElementById('edit-os-kmos').value; s.total = s.maoObra + s.pecas; s.essencial = document.getElementById('edit-os-essencial').checked; 
+            
+            if(s.statusOs === 'Faturada') {
+                db.financas = db.financas.filter(f => f.osRef !== s.osNumber); 
+                if(s.maoObra > 0) db.financas.push({ osRef: s.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'mao_obra', desc: `OS ${s.osNumber} - Mão de Obra`, valor: s.maoObra, data: Date.now() }); 
+                if(s.pecas > 0) db.financas.push({ osRef: s.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'pecas', desc: `OS ${s.osNumber} - Peças Faturadas`, valor: s.pecas, data: Date.now() + 1 }); 
+            }
+            
+            atualizarBancoDados(); 
+            if(!document.getElementById('sub-historico-os').classList.contains('hidden')) renderizarHistoricoPDFs(c); 
+            if(!document.getElementById('sub-acompanhar-os').classList.contains('hidden')) renderAcompanhamentoPage(cId);
+            renderizarUltimasOSGeral();
+            fecharModal(); mostrarToast("OS atualizada.", "var(--success)"); 
+        }
+
+        function escolherCompartilhamento(plat) { if(!osEdicaoAtual) return; document.getElementById('modalContent').innerHTML = `<h3 style="margin-bottom:20px;">Tipo de Emissão</h3><div style="display:flex; flex-direction:column; gap:12px;"><button class="btn btn-secondary" onclick="dispararExportacaoOS(${osEdicaoAtual.cId}, ${osEdicaoAtual.sIdx}, '${plat}', 'os')">📑 OS (Relatório)</button><button class="btn btn-secondary" onclick="dispararExportacaoOS(${osEdicaoAtual.cId}, ${osEdicaoAtual.sIdx}, '${plat}', 'orcamento')">📊 Orçamento</button><button class="btn btn-primary" onclick="dispararExportacaoOS(${osEdicaoAtual.cId}, ${osEdicaoAtual.sIdx}, '${plat}', 'ambos')">📦 Documento Integral</button></div><button class="btn btn-danger" style="margin-top:20px;" onclick="abrirDetalhesServico(${osEdicaoAtual.cId}, ${osEdicaoAtual.sIdx})">Voltar</button>`; }
+        async function dispararExportacaoOS(cId, sIdx, plat, docType) { if(plat === 'pdf') imprimirOS(cId, sIdx, docType); else if(plat === 'whatsapp') compartilhamentoOS(cId, sIdx, docType); }
+        
+        function gerarHTMLDaOS(clienteId, servicoIndex, docType) {
+            let c = db.clientes.find(x => x.id === clienteId); let s = c.servicos[servicoIndex]; let cfg = db.config; let mo = s.maoObra !== undefined ? s.maoObra : (s.tempo * cfg.valorHora); let hoje = new Date().toLocaleDateString();
+            let pecasHtml = s.orcamento.pecas.map(p => `<tr><td>${p.nome}</td><td style="text-align:center;">${p.qtd}</td><td style="text-align:right;">${p.valorUnit.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td><td style="text-align:right;">${(p.qtd * p.valorUnit).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>`).join('');
+            
+            return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OS ${s.osNumber} - ${cfg.empresa}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"><style>:root { --brand: #1e3a8a; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --bg-alt: #f8fafc; } body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #fff; color: var(--text); -webkit-font-smoothing: antialiased; } .container { position: relative; max-width: 900px; margin: auto; padding: 40px; box-sizing: border-box; } .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; color: rgba(0,0,0,0.02); z-index: -1; white-space: nowrap; font-weight: 800; pointer-events: none; } .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand); padding-bottom: 20px; margin-bottom: 30px; } .brand-col { display: flex; align-items: center; gap: 20px; } .brand-col img { max-width: 120px; max-height: 80px; object-fit: contain; } .brand-info h1 { margin: 0 0 5px 0; font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; } .brand-info p { margin: 2px 0; font-size: 11px; color: var(--muted); } .os-col { text-align: right; } .os-col h2 { margin: 0; font-size: 28px; color: var(--brand); font-weight: 800; letter-spacing: -1px; } .os-col p { margin: 5px 0 0; font-size: 12px; font-weight: 600; color: var(--muted); } .info-grid { display: flex; gap: 20px; margin-bottom: 30px; } .info-box { flex: 1; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 8px; padding: 15px; } .info-box h3 { margin: 0 0 10px 0; font-size: 11px; text-transform: uppercase; color: var(--brand); font-weight: 800; letter-spacing: 0.5px; } .info-line { display: flex; margin-bottom: 6px; font-size: 13px; } .info-line strong { width: 70px; color: var(--muted); font-weight: 600; } .info-line span { flex: 1; color: var(--text); font-weight: 600; } .section-title { background: var(--text); color: #fff; padding: 8px 12px; font-size: 12px; font-weight: 800; text-transform: uppercase; border-radius: 6px; margin-bottom: 15px; letter-spacing: 0.5px; display: inline-block;} .text-box { font-size: 13px; line-height: 1.6; color: var(--text); margin-bottom: 30px; padding: 15px; border-left: 4px solid var(--brand); background: var(--bg-alt); border-radius: 0 8px 8px 0; } .text-box strong { color: var(--text); font-weight: 600; } table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px; } th { background: var(--bg-alt); padding: 12px; text-align: left; font-weight: 800; color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); } td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); font-weight: 600;} .summary-box { float: right; width: 350px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 30px; } .summary-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: var(--muted); font-weight: 600; } .summary-line span:last-child { color: var(--text); } .summary-total { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--border); font-size: 18px; font-weight: 800; color: var(--brand); } .clearfix::after { content: ""; clear: both; display: table; } .assinatura-box { margin-top: 50px; text-align: center; } .assinatura-line { width: 350px; height: 1px; background: var(--text); margin: 0 auto 10px; } .assinatura-text { font-size: 12px; font-weight: 600; color: var(--text); } .assinatura-sub { font-size: 10px; color: var(--muted); margin-top: 4px; } .footer { text-align: center; margin-top: 50px; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 15px; } .gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; } .gallery img { width: calc(33.333% - 7px); height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); } @media print { .btn-fechar-guia { display: none !important; } } .btn-fechar-guia { position: fixed; top: 15px; right: 15px; width: 45px; height: 45px; border-radius: 50%; background: #ef4444; color: #fff; font-size: 24px; font-weight: bold; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 9999; }</style></head><body><button class="btn-fechar-guia" onclick="window.close()" title="Fechar e Voltar" data-html2canvas-ignore="true">✖</button><div class="container"><div class="watermark">${cfg.empresa}</div><div class="header"><div class="brand-col">${cfg.logo ? `<img src="${cfg.logo}">` : ''}<div class="brand-info"><h1>${cfg.empresa}</h1>${cfg.cnpj ? `<p><strong>CNPJ/MEI:</strong> ${cfg.cnpj}</p>` : ''}${cfg.endereco ? `<p><strong>Endereço:</strong> ${cfg.endereco}</p>` : ''}</div></div><div class="os-col"><h2>OS #${s.osNumber}</h2><p>EMISSÃO: ${hoje}</p></div></div><div class="info-grid"><div class="info-box"><h3>Dados do Cliente</h3><div class="info-line"><strong>Nome:</strong> <span>${c.nome}</span></div><div class="info-line"><strong>Telefone:</strong> <span>${c.tel || '---'}</span></div><div class="info-line"><strong>Email:</strong> <span>${c.email || '---'}</span></div></div><div class="info-box"><h3>Dados do Veículo</h3><div class="info-line"><strong>Modelo:</strong> <span>${c.modelo || '---'}</span></div><div class="info-line"><strong>Placa:</strong> <span>${c.placa || '---'}</span></div><div class="info-line"><strong>Chassi:</strong> <span>${c.chassi || '---'}</span></div><div class="info-line"><strong>KM:</strong> <span>${s.kmOs || c.km || '---'}</span></div></div></div><div class="section-title">DIAGNÓSTICO E RELATÓRIO TÉCNICO</div><div class="text-box"><p style="margin-top:0;"><strong>Serviço Solicitado:</strong> ${s.nome}</p><p><strong>Alegação do Cliente:</strong><br>${s.diag ? s.diag.replace(/\n/g, '<br>') : 'Não informado'}</p>${s.relatorio ? `<p style="margin-bottom:0;"><strong>Parecer Técnico:</strong><br>${s.relatorio.replace(/\n/g, '<br>')}</p>` : ''}</div>${s.galeria && s.galeria.length ? `<div class="section-title">REGISTRO FOTOGRÁFICO</div><div class="gallery">${s.galeria.map(img => `<img src="${img}">`).join('')}</div>` : ''}<div class="section-title">MATERIAIS E PEÇAS APLICADAS</div><table><thead><tr><th>Descrição da Peça/Item</th><th style="text-align:center; width: 60px;">Qtd</th><th style="text-align:right; width: 120px;">V. Unitário</th><th style="text-align:right; width: 120px;">Total</th></tr></thead><tbody>${pecasHtml || '<tr><td colspan="4" style="text-align:center; color:var(--muted);">Nenhuma peça registrada detalhadamente.</td></tr>'}</tbody></table><div class="clearfix"><div class="summary-box"><div class="summary-line"><span>Mão de Obra (${s.tempo || 0}h):</span> <span>${mo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span></div><div class="summary-line"><span>Total em Peças:</span> <span>${(s.pecas||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span></div>${s.orcamento.moExtra > 0 ? `<div class="summary-line"><span>Acréscimos M.O:</span> <span>${s.orcamento.moExtra.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span></div>` : ''}${s.orcamento.srvExtra > 0 ? `<div class="summary-line"><span>Serv. Terceiros:</span> <span>${s.orcamento.srvExtra.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span></div>` : ''}<div class="summary-total"><span>TOTAL DA OS:</span> <span>${s.total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span></div></div></div><div class="assinatura-box"><div class="assinatura-line"></div><div class="assinatura-text">${c.nome}</div><div class="assinatura-sub">Declaro estar ciente e aprovo os serviços e valores detalhados acima.</div></div><div class="footer">Documento gerado eletronicamente por <strong>TorquePro</strong> - Sistema de Gestão de Oficinas</div></div></body></html>`;
+        }
+        function imprimirOS(cId, sIdx, docType) { let html = gerarHTMLDaOS(cId, sIdx, docType); let win = window.open('', '_blank'); win.document.write(html); win.document.close(); setTimeout(() => win.print(), 500); fecharModal(); }
+        async function compartilhamentoOS(cId, sIdx, docType) { let c = db.clientes.find(x => x.id === cId); let s = c.servicos[sIdx]; let num = c.tel ? c.tel.replace(/\D/g,'') : ''; if(!num) return mostrarToast("Cliente sem WhatsApp.", "var(--danger)"); mostrarToast("Gerando PDF...", "var(--primary)"); let html = gerarHTMLDaOS(cId, sIdx, docType); let div = document.createElement('div'); div.innerHTML = html; let opt = { margin: 10, filename: `OS_${s.osNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; try { let pdfBlob = await html2pdf().set(opt).from(div).output('blob'); let file = new File([pdfBlob], opt.filename, { type: 'application/pdf' }); if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ title: `OS ${s.osNumber}`, files: [file] }); fecharModal(); return; } } catch(e) { } html2pdf().set(opt).from(div).save().then(() => { window.open(`https://wa.me/55${num}?text=${encodeURIComponent(`Olá, ${c.nome}! Segue em anexo a OS ${s.osNumber}.`)}`, '_blank'); fecharModal(); }); }
+
+        function salvarMaoObra() {
+            let marca = document.getElementById('mo-marca').value.trim(); let modelo = document.getElementById('mo-modelo').value.trim(); let nome = document.getElementById('mo-nome').value.trim(); let tempo = parseFloat(document.getElementById('mo-tempo').value);
+            let valor = parseFloat(document.getElementById('mo-valor').value) || 0;
+            if(!nome || isNaN(tempo) || tempo <= 0) return mostrarToast("Preencha o serviço e o tempo válido.", "var(--danger)");
+            db.maoObra.push({ id: Date.now(), marca, modelo, nome, tempo, valor }); atualizarBancoDados();
+            document.getElementById('mo-marca').value = ''; document.getElementById('mo-modelo').value = ''; document.getElementById('mo-nome').value = ''; document.getElementById('mo-tempo').value = ''; document.getElementById('mo-valor').value = '';
+            renderizarMaoObra(); mostrarToast("Serviço adicionado!", "var(--success)");
+        }
+        function limparMaoObra() { document.getElementById('modalContent').innerHTML = `<h3 style="color:var(--danger);">Apagar Biblioteca de M.O?</h3><p>Todos os serviços salvos serão apagados permanentemente.</p><div style="display:flex; gap:12px;"><button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button><button class="btn btn-danger" onclick="executarLimparMaoObra()">Sim, apagar tudo</button></div>`; document.getElementById('customModal').classList.add('show'); }
+        function executarLimparMaoObra() { db.maoObra = []; atualizarBancoDados(); renderizarMaoObra(); fecharModal(); mostrarToast("Biblioteca zerada.", "var(--danger)"); }
+        function importarCSVMO(event) { let file = event.target.files[0]; if(!file) return; let reader = new FileReader(); reader.onload = function(e) { try { let text = e.target.result; let lines = text.split('\n').filter(l => l.trim().length > 0); let count = 0; lines.forEach((line, index) => { if(index === 0 && line.toLowerCase().includes('tempo')) return; let parts = line.split(/[,;]/).map(p => p.trim()); if (parts.length >= 4) { let marca = parts[0]; let modelo = parts[1]; let nome = parts[2]; let tempo = parseFloat(parts[3].replace(',', '.')); let valor = parts[4] ? parseFloat(parts[4].replace(',', '.')) : 0; if (!isNaN(tempo)) { db.maoObra.push({ id: Date.now() + Math.random(), marca, modelo, nome, tempo, valor }); count++; } } }); atualizarBancoDados(); renderizarMaoObra(); mostrarToast(`${count} serviços importados via CSV!`, "var(--success)"); } catch(err) { mostrarToast("Falha ao ler o arquivo CSV.", "var(--danger)"); } event.target.value = ''; }; reader.readAsText(file, 'UTF-8'); }
+        function renderizarMaoObra() {
+            let lista = document.getElementById('lista-maoobra'); let termo = document.getElementById('busca-maoobra').value.toLowerCase(); lista.innerHTML = '';
+            let filtrados = db.maoObra.filter(m => m.nome.toLowerCase().includes(termo) || m.marca.toLowerCase().includes(termo) || m.modelo.toLowerCase().includes(termo));
+            if(!filtrados.length) { lista.innerHTML = '<p style="color:var(--text-muted);">Nenhum serviço de mão de obra cadastrado.</p>'; return; }
+            let agrupado = {}; filtrados.forEach(m => { let marca = m.marca || 'Marcas Gerais'; let modelo = m.modelo || 'Diversos/Outros'; if(!agrupado[marca]) agrupado[marca] = {}; if(!agrupado[marca][modelo]) agrupado[marca][modelo] = []; agrupado[marca][modelo].push(m); });
+            let html = '';
+            Object.keys(agrupado).sort().forEach(marca => {
+                html += `<details style="background:var(--card-bg); margin-bottom:10px; border-radius:12px; padding:15px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05);"><summary style="font-weight:bold; cursor:pointer; font-size:16px; color:var(--primary); outline:none; user-select:none;">📂 ${marca.toUpperCase()}</summary><div style="margin-top:15px;">`;
+                Object.keys(agrupado[marca]).sort().forEach(modelo => { html += `<details style="margin-left:15px; margin-bottom:8px; background:var(--bg-color); padding:10px 15px; border-radius:8px; border: 1px solid var(--border-color);"><summary style="cursor:pointer; font-weight:600; outline:none; user-select:none;">🏍️ ${modelo}</summary><div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-color);">`; agrupado[marca][modelo].sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(srv => { let valorSrv = srv.valor ? ` | 💰 R$ ${srv.valor.toFixed(2)}` : ''; html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(150,150,150,0.1);"><div><strong style="display:block; font-size:14px;">${srv.nome}</strong><span style="font-size:12px; color:var(--text-muted);">⏱️ Tempo: ${srv.tempo}h${valorSrv}</span></div><button class="btn btn-secondary" style="color:var(--danger); border:none; padding:8px;" onclick="removerMaoObra(${srv.id})">✖</button></div>`; }); html += `</div></details>`; });
+                html += `</div></details>`;
+            }); lista.innerHTML = html;
+        }
+        function removerMaoObra(id) { db.maoObra = db.maoObra.filter(m => m.id !== id); atualizarBancoDados(); renderizarMaoObra(); }
+        function buscarServicoPadrao(termo) { let div = document.getElementById('sugestoes-mo'); if(termo.length < 2) { div.style.display = 'none'; return; } let filtrados = db.maoObra.filter(m => m.nome.toLowerCase().includes(termo.toLowerCase()) || m.modelo.toLowerCase().includes(termo.toLowerCase())); if(!filtrados.length) { div.style.display = 'none'; return; } div.style.display = 'block'; div.innerHTML = filtrados.slice(0,10).map(m => `<div onclick="aplicarServicoPadrao('${m.nome}', ${m.tempo})">[${m.modelo}] ${m.nome} (${m.tempo}h)</div>`).join(''); }
+        function aplicarServicoPadrao(nome, tempo) { document.getElementById('srv-nome').value = nome; document.getElementById('srv-tempo').value = tempo; document.getElementById('sugestoes-mo').style.display = 'none'; calcularServico(); }
+
+        /* ====== ESTOQUE ====== */
+        function salvarEstoque() { let nome = document.getElementById('est-nome').value; let qtd = parseInt(document.getElementById('est-qtd').value); let vCusto = parseFloat(document.getElementById('est-valor').value); let vVenda = parseFloat(document.getElementById('est-valor-venda').value); if(!nome || isNaN(qtd) || isNaN(vCusto)) return mostrarToast("Preencha todos os campos.", "var(--danger)"); db.estoque.push({ id: Date.now(), nome, qtd, valorCusto: vCusto, valorVenda: vVenda || 0 }); db.financas.push({ tipo: 'saida', categoria: 'oficina', subtipo: 'compra_pecas', desc: `Compra de Estoque: ${qtd}x ${nome}`, valor: vCusto * qtd, data: Date.now() }); atualizarBancoDados(); document.querySelectorAll('#view-estoque input').forEach(i => i.value = ''); renderizarEstoque(); mostrarToast("Peça registrada!", "var(--success)"); }
+        function ajustarQtdEstoque(id, delta) { let item = db.estoque.find(e => e.id === id); if(item) { item.qtd = Math.max(0, item.qtd + delta); atualizarBancoDados(); renderizarEstoque(); if(item.qtd < 3) verificarAlertasEstoque(); } }
+        function venderItemEstoque(id) { let item = db.estoque.find(e => e.id === id); if(item && item.qtd > 0) { item.qtd--; db.financas.push({ tipo: 'entrada', categoria: 'oficina', subtipo: 'venda_peca', desc: `Venda Direta (Balcão): 1x ${item.nome}`, valor: item.valorVenda, data: Date.now() }); atualizarBancoDados(); renderizarEstoque(); mostrarToast(`Venda de ${item.nome} registrada!`, "var(--success)"); if(item.qtd < 3) verificarAlertasEstoque(); } else mostrarToast("Estoque insuficiente.", "var(--danger)"); }
+        function renderizarEstoque() { let lista = document.getElementById('lista-estoque'); let termo = document.getElementById('busca-estoque').value.toLowerCase(); lista.innerHTML = ''; if(!db.estoque) return; let filtrados = db.estoque.filter(e => e.nome.toLowerCase().includes(termo)); if(!filtrados.length) { lista.innerHTML = '<p>Estoque vazio.</p>'; return; } filtrados.forEach(e => { let margem = e.valorCusto > 0 ? (((e.valorVenda - e.valorCusto)/e.valorCusto)*100).toFixed(0) : 0; let cor = e.qtd < 3 ? 'var(--danger)' : 'var(--primary)'; lista.innerHTML += `<div class="card-item"><div style="display:flex; justify-content:space-between;"><strong>${e.nome}</strong><span style="color:${cor}; font-weight:800;">${e.qtd} x</span></div><div style="background:var(--bg-color); padding:10px; border-radius:8px; margin:10px 0;"><div>Custo: ${e.valorCusto.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div><div>Venda: ${e.valorVenda.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div><div>Margem: ${margem}%</div></div><div class="qty-controls" style="flex-wrap: wrap; gap: 5px;"><button class="btn-qty" onclick="ajustarQtdEstoque(${e.id}, -1)">-</button><button class="btn-qty" onclick="ajustarQtdEstoque(${e.id}, 1)">+</button><button class="btn btn-success" onclick="venderItemEstoque(${e.id})" style="flex:1;">Balcão</button><button class="btn btn-primary" onclick="abrirModalEnviarParaOS(${e.id})" style="flex:1;">OS</button><button class="btn btn-secondary" style="border-color:var(--danger); color:var(--danger);" onclick="removerEstoque(${e.id})">✖</button></div></div>`; }); }
+        function removerEstoque(id) { db.estoque = db.estoque.filter(e => e.id !== id); atualizarBancoDados(); renderizarEstoque(); }
+        
+        function abrirModalEnviarParaOS(itemId) {
+            let item = db.estoque.find(e => e.id === itemId); if(!item) return; if(item.qtd <= 0) return mostrarToast("Estoque esgotado.", "var(--danger)");
+            document.getElementById('modalContent').innerHTML = `<h3 style="margin-bottom:15px;">Enviar para O.S.</h3><p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;">Item: <strong>${item.nome}</strong> (Em estoque: ${item.qtd})</p><div class="row-form" style="grid-template-columns: 1fr;"><input type="number" id="modal-env-os-num" placeholder="Número da O.S." min="1000"><input type="number" id="modal-env-os-qtd" placeholder="Quantidade" value="1" min="1" max="${item.qtd}"></div><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button><button class="btn btn-primary btn-action-principal" onclick="executarEnvioParaOS(${itemId})">Confirmar Envio</button></div>`;
+            document.getElementById('customModal').classList.add('show'); setTimeout(() => document.getElementById('modal-env-os-num').focus(), 150);
+        }
+        function executarEnvioParaOS(itemId) {
+            let item = db.estoque.find(e => e.id === itemId); let osNum = parseInt(document.getElementById('modal-env-os-num').value); let qtd = parseInt(document.getElementById('modal-env-os-qtd').value);
+            if(!osNum || isNaN(qtd) || qtd <= 0) return mostrarToast("Preencha todos os campos corretamente.", "var(--danger)"); if(qtd > item.qtd) return mostrarToast("Quantidade indisponível no estoque.", "var(--danger)");
+            let targetOS = null; for(let c of db.clientes) { let os = c.servicos.find(s => s.osNumber === osNum); if(os) { targetOS = os; break; } }
+            if(!targetOS) return mostrarToast("O.S. não encontrada.", "var(--danger)"); if(targetOS.statusOs === 'Fechada') return mostrarToast("O.S. Fechada. Reabra antes de adicionar.", "var(--danger)");
+            item.qtd -= qtd;
+            if(!targetOS.orcamento) targetOS.orcamento = { pecas: [], moExtra: 0, srvExtra: 0, status: 'Pendente' };
+            targetOS.orcamento.pecas.push({ nome: item.nome, qtd: qtd, valorUnit: item.valorVenda });
+            let totalPecas = targetOS.orcamento.pecas.reduce((acc,p) => acc + (p.qtd * p.valorUnit), 0); targetOS.pecas = totalPecas; targetOS.total = targetOS.maoObra + totalPecas;
+            if(targetOS.statusOs === 'Faturada') {
+                db.financas = db.financas.filter(f => f.osRef !== targetOS.osNumber);
+                if(targetOS.maoObra > 0) db.financas.push({ osRef: targetOS.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'mao_obra', desc: `OS ${targetOS.osNumber} - Mão de Obra`, valor: targetOS.maoObra, data: Date.now() });
+                if(targetOS.pecas > 0) db.financas.push({ osRef: targetOS.osNumber, tipo: 'entrada', categoria: 'oficina', subtipo: 'pecas', desc: `OS ${targetOS.osNumber} - Peças Faturadas`, valor: targetOS.pecas, data: Date.now() + 1 });
+            }
+            atualizarBancoDados(); renderizarEstoque(); if(!document.getElementById('view-gestao').classList.contains('hidden')) renderizarDash(); fecharModal(); mostrarToast(`${qtd}x ${item.nome} adicionado à OS ${osNum}!`, "var(--success)"); if(item.qtd < 3) verificarAlertasEstoque();
+        }
+
+        /* ====== FORNECEDORES ====== */
+        function salvarFornecedor() { let nome = document.getElementById('for-nome').value; if(!nome) return mostrarToast("Nome necessário.", "var(--danger)"); db.fornecedores.push({ id: Date.now(), nome, cnpj: document.getElementById('for-cnpj').value, tel: document.getElementById('for-tel').value, item: document.getElementById('for-item').value, qtdComprada:0, valorGasto:0 }); atualizarBancoDados(); document.querySelectorAll('#view-fornecedores input').forEach(i => i.value = ''); renderizarFornecedores(); mostrarToast("Fornecedor adicionado!", "var(--success)"); }
+        function renderizarFornecedores() { let lista = document.getElementById('lista-fornecedores'); let termo = document.getElementById('busca-fornecedores').value.toLowerCase(); lista.innerHTML = ''; let filtrados = db.fornecedores.filter(f => f.nome.toLowerCase().includes(termo) || (f.item && f.item.toLowerCase().includes(termo)) || (f.cnpj && f.cnpj.includes(termo))); if(!filtrados.length) { lista.innerHTML = '<p style="color:var(--text-muted);">Nenhum fornecedor.</p>'; return; } filtrados.forEach(f => { lista.innerHTML += `<div class="card-item"><strong>${f.nome}</strong><span style="font-size:12px;">CNPJ: ${f.cnpj || '---'} | Contato: ${f.tel || '---'}</span><span style="color:var(--primary);">Mercadoria: ${f.item}</span><div style="font-size:12px; background:var(--bg-color); padding:8px; border-radius:6px; margin: 10px 0;">Qtd Cargas: ${f.qtdComprada} | Valor Gasto: ${(f.valorGasto||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div><div style="display:flex; gap:6px; flex-wrap:wrap;"><button class="btn btn-primary" style="flex:1;" onclick="registrarCompraFornecedor(${f.id})">+ Lançar Compra</button><button class="btn btn-success" style="background:#25D366; color:#020617; border-color:#25D366; flex:1;" onclick="chamarWhatsAppFornecedor('${f.tel || ''}')">💬 WhatsApp</button><button class="btn btn-secondary" style="border-color:var(--danger); color:var(--danger);" onclick="confirmarExcluirFornecedor(${f.id})">✖</button></div></div>`; }); }
+        function chamarWhatsAppFornecedor(tel) { if(!tel) return mostrarToast("Fornecedor sem telefone.", "var(--danger)"); let num = tel.replace(/\D/g,''); window.open(`https://wa.me/55${num}`, '_blank'); }
+        function registrarCompraFornecedor(id) { let f = db.fornecedores.find(x => x.id === id); document.getElementById('modalContent').innerHTML = `<h3>Comprar de ${f.nome}</h3><p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">A peça irá direto para o estoque e descontará do caixa.</p><div class="row-form" style="grid-template-columns: 1fr;"><input type="text" id="for-compra-item" placeholder="Nome da Peça/Item"><div class="grid-2"><input type="number" id="for-compra-qtd" placeholder="Quantidade" min="1"><input type="number" id="for-compra-custo" placeholder="Valor Pago (Unidade R$)" step="0.01"></div><input type="number" id="for-compra-venda" placeholder="Valor de Venda (Unidade R$)" step="0.01"></div><div style="display:flex; gap:12px; margin-top:20px;"><button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button><button class="btn btn-success btn-action-principal" onclick="executarCompraFornecedor(${id})">Salvar Compra</button></div>`; document.getElementById('customModal').classList.add('show'); setTimeout(()=>document.getElementById('for-compra-item').focus(),150); }
+        function executarCompraFornecedor(id) { let nomeItem = document.getElementById('for-compra-item').value.trim(); let qtd = parseInt(document.getElementById('for-compra-qtd').value); let custoUnit = parseFloat(document.getElementById('for-compra-custo').value); let vendaUnit = parseFloat(document.getElementById('for-compra-venda').value); if(!nomeItem || isNaN(qtd) || qtd<=0 || isNaN(custoUnit) || custoUnit<0 || isNaN(vendaUnit) || vendaUnit<0) { return mostrarToast("Preencha todos os dados corretamente.", "var(--danger)"); } let valorTotalCusto = qtd * custoUnit; let f = db.fornecedores.find(x => x.id === id); f.qtdComprada += qtd; f.valorGasto += valorTotalCusto; db.financas.push({ tipo: 'saida', categoria: 'oficina', subtipo: 'compra_pecas', desc: `Compra Fornecedor (${f.nome}): ${qtd}x ${nomeItem}`, valor: valorTotalCusto, data: Date.now() }); let itemEstoque = db.estoque.find(e => e.nome.toLowerCase() === nomeItem.toLowerCase()); if(itemEstoque) { itemEstoque.qtd += qtd; itemEstoque.valorCusto = custoUnit; itemEstoque.valorVenda = vendaUnit; } else { db.estoque.push({ id: Date.now(), nome: nomeItem, qtd: qtd, valorCusto: custoUnit, valorVenda: vendaUnit }); } atualizarBancoDados(); renderizarFornecedores(); if(!document.getElementById('view-estoque').classList.contains('hidden')) renderizarEstoque(); renderizarDash(); fecharModal(); mostrarToast("Compra registrada e estoque atualizado!", "var(--success)"); }
+        function confirmarExcluirFornecedor(id) { document.getElementById('modalContent').innerHTML = `<h3 style="color:var(--danger);">Remover Fornecedor?</h3><p>Notas anteriores permanecem nos balanços.</p><div style="display:flex; gap:12px;"><button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button><button class="btn btn-danger btn-action-principal" onclick="executarExcluirFornecedor(${id})">Excluir</button></div>`; document.getElementById('customModal').classList.add('show'); }
+        function executarExcluirFornecedor(id) { db.fornecedores = db.fornecedores.filter(x => x.id !== id); atualizarBancoDados(); renderizarFornecedores(); fecharModal(); mostrarToast("Fornecedor removido.", "var(--success)"); }
+
+        /* ====== FINANCEIRO (Gestão Financeira & DRE) ====== */
+        function salvarMovimentacao() { let desc = document.getElementById('fin-desc').value.trim(); let valStr = document.getElementById('fin-valor').value.replace(',', '.'); let val = parseFloat(valStr); if(!desc || isNaN(val) || val <= 0) return mostrarToast("Preencha descrição e um valor válido.", "var(--danger)"); db.financas.push({ tipo: document.getElementById('fin-tipo').value, categoria: 'oficina', subtipo: 'outro', desc: `Movimentação Avulsa: ${desc}`, valor: val, data: Date.now() }); atualizarBancoDados(); renderizarDash(); mostrarToast("Lançamento registrado!", "var(--success)"); document.getElementById('fin-desc').value = ''; document.getElementById('fin-valor').value = ''; }
+        function renderizarListaAvulsos() { let lista = document.getElementById('lista-avulsos'); if(!lista) return; lista.innerHTML = ''; let avulsos = db.financas.filter(f => f.subtipo === 'outro').sort((a,b)=>b.data - a.data).slice(0,15); if(!avulsos.length) { lista.innerHTML = '<span style="font-size:12px;">Nenhum lançamento manual.</span>'; return; } avulsos.forEach(f => { let cor = f.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)'; let sinal = f.tipo === 'entrada' ? '+' : '-'; lista.innerHTML += `<div style="display:flex; justify-content:space-between; background:var(--bg-color); padding:10px; border-radius:8px; border-left:4px solid ${cor}; margin-bottom:8px;"><div><div>${f.desc}</div><div style="font-size:11px;">${new Date(f.data).toLocaleString()}</div></div><div style="color:${cor}; font-weight:bold;">${sinal} ${f.valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div></div>`; }); }
+        
+        function renderizarDash() { 
+            verificarNotificacoesFinanceiras(); carregarConfigFechamento();
+            let agora = Date.now(); let limite24 = agora - 24*60*60*1000; 
+            let saldoGlobal = 0; let entDia=0, saiDia=0; 
+            db.financas.forEach(f => { 
+                if(f.tipo === 'entrada') saldoGlobal += f.valor; else if (f.tipo === 'saida') saldoGlobal -= f.valor;
+                if(f.data >= limite24) { if(f.tipo === 'entrada') entDia += f.valor; else if(f.tipo === 'saida') saiDia += f.valor; } 
+            }); 
+            let negativo = saldoGlobal < 0 ? saldoGlobal : 0; let faltaPositivar = saldoGlobal < 0 ? Math.abs(saldoGlobal) : 0;
+            
+            let hoje = new Date(); let mesAtualStr = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0');
+            let entMes=0, saiMes=0;
+            db.financas.forEach(f => { let fDate = new Date(f.data); if(obterMesStr(fDate) === mesAtualStr) { if(f.tipo === 'entrada') entMes += f.valor; else if(f.tipo === 'saida') saiMes += f.valor; } });
+
+            document.getElementById('dash-dia-saldo').innerHTML = (entDia - saiDia).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); 
+            document.getElementById('dash-caixa-livre').innerText = saldoGlobal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            document.getElementById('dash-negativo').innerText = negativo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            document.getElementById('dash-falta-positivar').innerText = faltaPositivar.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            document.getElementById('dash-mes').innerHTML = (entMes - saiMes).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            
+            renderizarListaAvulsos(); 
+            renderizarFinanceiroFiltrado();
+        }
+
+        function renderizarFinanceiroFiltrado() {
+            let mesInput = document.getElementById('busca-financas-mes').value;
+            let diaInput = document.getElementById('busca-financas-dia').value;
+            let container = document.getElementById('historico-meses');
+            let info = document.getElementById('resultado-calendario-info');
+            let cardGrafico = document.getElementById('card-grafico');
+            container.innerHTML = '';
+            
+            if(!mesInput && !diaInput) {
+                info.innerHTML = '<span style="color:var(--text-muted);">Por favor, selecione um mês ou dia para visualizar o extrato e os gráficos detalhados.</span>';
+                cardGrafico.style.display = 'none';
+                return;
+            }
+
+            let ent=0, sai=0, chartData=[];
+            db.financas.forEach(f => {
+                let d = new Date(f.data);
+                let movDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                let movMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                let incluir = false;
+                
+                if(diaInput && diaInput === movDate) incluir = true;
+                else if(!diaInput && mesInput && mesInput === movMonth) incluir = true;
+
+                if(incluir) {
+                    chartData.push(f);
+                    if(f.tipo === 'entrada') ent += f.valor;
+                    else if(f.tipo === 'saida') sai += f.valor;
+                }
+            });
+
+            let saldo = ent - sai;
+            let textoFiltro = diaInput ? `Dia ${diaInput.split('-').reverse().join('/')}` : `Mês ${mesInput.split('-').reverse().join('/')}`;
+            info.innerHTML = `Extrato de ${textoFiltro} | <span style="color:var(--success);">Receitas: ${ent.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span> | <span style="color:var(--danger);">Despesas: ${sai.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span> | Saldo: <span style="color:${saldo>=0?'var(--success)':'var(--danger)'}">${saldo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span>`; 
+
+            if(chartData.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-muted);">Sem movimentação neste período.</p>`;
+                cardGrafico.style.display = 'none';
+            } else {
+                renderizarGraficoRelatorio(chartData, mesInput || diaInput.substring(0,7));
+                chartData.sort((a,b) => b.data - a.data).forEach(det => { 
+                    let cor = det.tipo === 'entrada' ? 'var(--success)' : (det.tipo === 'fechamento' ? 'var(--primary)' : 'var(--danger)'); 
+                    let sinal = det.tipo === 'entrada' ? '+' : (det.tipo === 'fechamento' ? '📌' : '-'); 
+                    container.innerHTML += `<div class="card-item"><span style="font-size:11px; color:var(--text-muted);">${new Date(det.data).toLocaleString()}</span><strong style="margin:5px 0; display:block;">${det.desc}</strong><span style="color:${cor}; font-size:15px; font-weight:bold;">${sinal} ${det.valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span></div>`; 
+                }); 
+            }
+        }
+
+        function renderizarGraficoRelatorio(movimentacoes, mesReferencia) {
+            let card = document.getElementById('card-grafico');
+            if(!movimentacoes || movimentacoes.length === 0) { card.style.display = 'none'; return; }
+            card.style.display = 'block';
+
+            let dadosPorDia = {};
+            movimentacoes.forEach(f => {
+                let d = new Date(f.data);
+                let diaStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth()+1).padStart(2, '0');
+                if(!dadosPorDia[diaStr]) dadosPorDia[diaStr] = { entrada: 0, saida: 0 };
+                if(f.tipo === 'entrada') dadosPorDia[diaStr].entrada += f.valor;
+                else if(f.tipo === 'saida') dadosPorDia[diaStr].saida += f.valor;
+            });
+
+            let diasOrdenados = Object.keys(dadosPorDia).sort((a,b) => {
+                let [da, ma] = a.split('/'); let [db, mb] = b.split('/');
+                return new Date(2020, parseInt(ma)-1, parseInt(da)) - new Date(2020, parseInt(mb)-1, parseInt(db)); 
+            });
+
+            let labels = diasOrdenados;
+            let dataEntrada = diasOrdenados.map(d => dadosPorDia[d].entrada);
+            let dataSaida = diasOrdenados.map(d => dadosPorDia[d].saida);
+
+            let ctx = document.getElementById('grafico-relatorio').getContext('2d');
+            if(relatorioChart) relatorioChart.destroy();
+            Chart.defaults.color = getComputedStyle(document.body).getPropertyValue('--text-muted').trim() || '#888';
+
+            relatorioChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: [ { label: 'Entradas (R$)', data: dataEntrada, backgroundColor: '#10b981', borderRadius: 4, maxBarThickness: 10 }, { label: 'Saídas (R$)', data: dataSaida, backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 10 } ] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(150, 150, 150, 0.1)' } }, x: { grid: { display: false } } } }
+            });
+        }
+
+        /* Fechamento DRE */
+        function carregarConfigFechamento() { let f = db.config.fechamento; document.getElementById('fixo-aluguel').value = f.aluguel || 0; document.getElementById('fixo-agua').value = f.agua || 0; document.getElementById('fixo-energia').value = f.energia || 0; document.getElementById('fixo-internet').value = f.internet || 0; renderizarTecnicosFechamento(); calcularFechamento(); }
+        function salvarConfigFechamento() { let f = db.config.fechamento; f.aluguel = parseFloat(document.getElementById('fixo-aluguel').value)||0; f.agua = parseFloat(document.getElementById('fixo-agua').value)||0; f.energia = parseFloat(document.getElementById('fixo-energia').value)||0; f.internet = parseFloat(document.getElementById('fixo-internet').value)||0; atualizarBancoDados(); calcularFechamento(); }
+        function renderizarTecnicosFechamento() { let f = db.config.fechamento; let container = document.getElementById('lista-tecnicos-fechamento'); container.innerHTML = ''; if(!f.tecnicos.length) { container.innerHTML = '<p style="font-size:11px;">Nenhum técnico cadastrado.</p>'; return; } f.tecnicos.forEach((t,idx) => { container.innerHTML += `<div style="display:flex; gap:8px; margin-bottom:10px;"><input type="text" value="${t.nome}" placeholder="Nome" style="flex:2;" onchange="atualizarTecnico(${idx}, 'nome', this.value)"><input type="number" value="${t.pct}" placeholder="%" style="flex:1;" onchange="atualizarTecnico(${idx}, 'pct', this.value)"><button class="btn btn-secondary" style="color:var(--danger);" onclick="removerTecnico(${idx})">✖</button></div>`; }); }
+        function addNovoTecnicoFechamento() { db.config.fechamento.tecnicos.push({ nome: '', pct: 0 }); atualizarBancoDados(); renderizarTecnicosFechamento(); calcularFechamento(); }
+        function atualizarTecnico(idx, campo, valor) { if(campo === 'pct') valor = parseFloat(valor)||0; db.config.fechamento.tecnicos[idx][campo] = valor; atualizarBancoDados(); calcularFechamento(); }
+        function removerTecnico(idx) { db.config.fechamento.tecnicos.splice(idx,1); atualizarBancoDados(); renderizarTecnicosFechamento(); calcularFechamento(); }
+        function limparFiltroFechamento() { document.getElementById('filtro-mes-fechamento').value = ''; document.getElementById('filtro-dia-fechamento').value = ''; calcularFechamento(); }
+        
+        function calcularFechamento() {
+            let mesInput = document.getElementById('filtro-mes-fechamento').value; let diaInput = document.getElementById('filtro-dia-fechamento').value;
+            let f = db.config.fechamento; let despesasFixas = f.aluguel + f.agua + f.energia + f.internet; let entOficina = 0, saiPecas = 0, saiOutros = 0;
+            db.financas.forEach(mov => {
+                let d = new Date(mov.data); let movDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; let movMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                let incluir = false;
+                if(diaInput && diaInput === movDate) incluir = true;
+                else if(!diaInput && mesInput && mesInput === movMonth) incluir = true;
+                else if(!diaInput && !mesInput) { let hoje = new Date(); let hojeMes = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`; if(movMonth === hojeMes) incluir = true; }
+                if(incluir) { if(mov.tipo === 'entrada') entOficina += mov.valor; else if(mov.tipo === 'saida') { if(mov.subtipo === 'compra_pecas' || mov.subtipo === 'compra') saiPecas += mov.valor; else saiOutros += mov.valor; } }
+            });
+            let bruto = entOficina; let fixasAplicadas = diaInput ? despesasFixas / 30 : despesasFixas; let liquido = bruto - saiPecas - saiOutros - fixasAplicadas; let totalComissoes = 0; let htmlComissoes = '';
+            f.tecnicos.forEach(tec => { let val = liquido > 0 ? liquido * (tec.pct / 100) : 0; totalComissoes += val; htmlComissoes += `<div style="display:flex; justify-content:space-between;"><span>(-) Comissão ${tec.nome || 'Técnico'} (${tec.pct}%):</span><strong style="color:var(--danger);">- ${val.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong></div>`; });
+            let sobra = liquido > 0 ? liquido - totalComissoes : 0; let margem = bruto > 0 ? ((sobra / bruto) * 100).toFixed(1) : 0;
+            let periodo = diaInput ? `Dia ${diaInput.split('-').reverse().join('/')}` : (mesInput ? `Mês ${mesInput.split('-').reverse().join('/')}` : 'Mês Atual');
+            document.getElementById('resultado-fechamento').innerHTML = `<div class="dre-container"><div style="font-weight:800; margin-bottom:15px;">${periodo}</div><div class="dre-line"><span>Receita Bruta (M.O + Peças)</span><strong>${bruto.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong></div><div class="dre-line"><span>(-) Compras de Estoque</span><strong style="color:var(--danger);">- ${saiPecas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong></div><div class="dre-line"><span>(-) Despesas Avulsas</span><strong style="color:var(--danger);">- ${saiOutros.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong></div><div class="dre-line"><span>(-) Custos Fixos ${diaInput ? '(diário)' : ''}</span><strong style="color:var(--danger);">- ${fixasAplicadas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong></div><div class="dre-line" style="font-weight:bold;"><span>Lucro Líquido (antes comissões)</span><strong style="color:${liquido>=0?'var(--primary)':'var(--danger)'};">${liquido.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong></div>${htmlComissoes}<div class="dre-total"><span>💰 SOBRA FINAL NO CAIXA</span><strong style="color:${sobra>=0?'var(--success)':'var(--danger)'}; font-size:22px;">${sobra.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</strong></div><div style="margin-top:8px;">Margem sobre faturamento: <strong>${margem}%</strong></div><button class="btn btn-primary btn-action-principal" style="margin-top:20px;" onclick="salvarFechamentoNoHistorico('${periodo}', ${bruto}, ${sobra})">📌 Salvar Fechamento Oficial</button></div>`;
+        }
+        function salvarFechamentoNoHistorico(periodo, fat, sobra) { document.getElementById('modalContent').innerHTML = `<h3>Auditoria de Fechamento</h3><p>Competência: ${periodo}<br>Sobra: ${sobra.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</p><div style="display:flex; gap:12px;"><button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button><button class="btn btn-success btn-action-principal" onclick="executarSalvarFechamento('${periodo}', ${fat}, ${sobra})">Assinar Balanço</button></div>`; document.getElementById('customModal').classList.add('show'); }
+        function executarSalvarFechamento(periodo, fat, sobra) { db.financas.push({ tipo: 'fechamento', categoria: 'fechamento', subtipo: 'fechamento_mes', desc: `Auditoria (${periodo}) | Faturamento: ${fat.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} | Sobra: ${sobra.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}`, valor: sobra, data: Date.now() }); atualizarBancoDados(); fecharModal(); mostrarToast("Auditoria salva!", "var(--success)"); renderizarDash(); }
+
+        /* ====== WHATSAPP ====== */
+        function renderizarMarketing() { let lista = document.getElementById('lista-marketing'); let termo = document.getElementById('busca-whatsapp').value.toLowerCase(); lista.innerHTML = ''; let filtrados = db.clientes.filter(c => c.nome.toLowerCase().includes(termo) || (c.tel && c.tel.includes(termo))); if(!filtrados.length) { lista.innerHTML = '<p>Nenhum cliente encontrado.</p>'; return; } filtrados.forEach(c => { let ultimaOS = c.servicos.length ? c.servicos[c.servicos.length-1] : null; let alerta = ''; let msg = `Olá, ${c.nome}! Aqui é da equipe ${db.config.empresa}. Estamos à disposição para manutenção preventiva.`; if(ultimaOS && ultimaOS.data) { let partes = ultimaOS.data.split('/'); if(partes.length===3) { let dataUlt = new Date(partes[2], partes[1]-1, partes[0]); let diff = Math.ceil((new Date() - dataUlt) / (1000*60*60*24)); if(diff >= 180) { alerta = '<div style="color:var(--accent); font-size:11px;">⚠️ Inativo há mais de 6 meses</div>'; msg = `Olá, ${c.nome}! Já faz um tempo desde sua última visita. Que tal agendar um check-up preventivo?`; } } } lista.innerHTML += `<div class="card-item" style="border-left-color:#25D366;"><strong>${c.nome}</strong><div style="font-size:13px;">${c.tel || 'Sem número'}</div>${alerta}<button class="btn btn-success" style="background:#25D366; color:#020617; margin-top:12px;" onclick="confirmarWhatsApp('${encodeURIComponent(msg)}', '${c.tel}')">📲 Enviar WhatsApp</button></div>`; }); }
+        function confirmarWhatsApp(msg, tel) { if(!tel) return mostrarToast("Cliente sem telefone.", "var(--danger)"); let num = tel.replace(/\D/g,''); window.open(`https://wa.me/55${num}?text=${msg}`, '_blank'); }
+        
+        /* ====== AGENDAMENTO TIMELINE ====== */
+        function buscarClienteAg(termo) {
+            let div = document.getElementById('ag-sugestoes');
+            if(termo.length < 2) { div.style.display = 'none'; return; }
+            let filtrados = db.clientes.filter(c => c.nome.toLowerCase().includes(termo.toLowerCase()) || (c.placa && c.placa.toLowerCase().includes(termo.toLowerCase())));
+            if(!filtrados.length) { div.style.display = 'none'; return; }
+            div.style.display = 'block'; div.innerHTML = filtrados.map(c => `<div onclick="selecionarClienteAg(${c.id}, '${c.nome}', '${c.placa || ''}')">${c.nome} ${c.placa ? `(${c.placa})` : ''}</div>`).join('');
+        }
+        function selecionarClienteAg(id, nome, placa) {
+            let c = db.clientes.find(x => x.id === id); clienteAgSelecionado = { id, nome, moto: c.modelo };
+            document.getElementById('ag-cliente-selecionado').innerText = `Cliente Selecionado: ${nome} ${placa ? `(${placa})` : ''}`; document.getElementById('ag-moto').value = c.modelo || 'Modelo não informado no cadastro'; document.getElementById('ag-busca').value = ''; document.getElementById('ag-sugestoes').style.display = 'none';
+        }
+        function salvarNovoAgendamento() {
+            if(!clienteAgSelecionado) return mostrarToast("Selecione um cliente cadastrado!", "var(--danger)");
+            let data = document.getElementById('ag-data').value; let hora = document.getElementById('ag-hora').value; let tempo = parseFloat(document.getElementById('ag-tempo').value); let servico = document.getElementById('ag-servico').value || 'Serviço Padrão'; let moto = document.getElementById('ag-moto').value;
+            if(!data || !hora || isNaN(tempo) || tempo <= 0) return mostrarToast("Preencha Data, Hora e Tempo Estimado!", "var(--danger)");
+            let [h, m] = hora.split(':').map(Number); let totalM = h*60 + m + (tempo*60); let fimH = Math.floor(totalM/60)%24; let fimM = Math.round(totalM%60); let horaFim = `${String(fimH).padStart(2,'0')}:${String(fimM).padStart(2,'0')}`;
+            db.agendamentos.push({ id: Date.now(), clienteId: clienteAgSelecionado.id, clienteNome: clienteAgSelecionado.nome, moto, servico, data, horaInicio: hora, horaFim, duracao: tempo });
+            atualizarBancoDados(); mostrarToast("Serviço Lançado na Agenda!", "var(--success)");
+            clienteAgSelecionado = null; document.getElementById('ag-cliente-selecionado').innerText = "Nenhum cliente selecionado"; document.getElementById('ag-tempo').value = ''; document.getElementById('ag-hora').value = ''; document.getElementById('ag-servico').value = ''; document.getElementById('ag-moto').value = '';
+            let [ano, mes, dia] = data.split('-'); dataAgendaAtual = new Date(ano, mes-1, dia); renderizarAgendaDiaria();
+        }
+        function mudarDiaAgenda(delta) { dataAgendaAtual.setDate(dataAgendaAtual.getDate() + delta); renderizarAgendaDiaria(); }
+        function renderizarAgendaDiaria() {
+            try {
+                let display = document.getElementById('agenda-data-display'); if(!display) return; display.innerText = dataAgendaAtual.toLocaleDateString('pt-BR');
+                let dStr = `${dataAgendaAtual.getFullYear()}-${String(dataAgendaAtual.getMonth()+1).padStart(2,'0')}-${String(dataAgendaAtual.getDate()).padStart(2,'0')}`;
+                let ags = db.agendamentos.filter(a => a.data === dStr);
+                let container = document.getElementById('container-timeline-agenda'); container.innerHTML = '';
+                if(ags.length === 0) { container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding: 20px;">Nenhum agendamento para esta data.</div>'; return; }
+                ags.sort((a,b) => (a.horaInicio || "00:00").localeCompare(b.horaInicio || "00:00"));
+                let START_HOUR = 8; let END_HOUR = 20; let TOTAL_HOURS = END_HOUR - START_HOUR;
+                let tracks = [];
+                let renderEvents = ags.map(ag => {
+                    let horaInic = ag.horaInicio || "08:00"; let [h, m] = horaInic.split(':').map(Number); if(isNaN(h)) h = 8; if(isNaN(m)) m = 0;
+                    let startDecimal = h + (m/60); let dur = parseFloat(ag.duracao) || 1; let endDecimal = startDecimal + dur;
+                    let trackIdx = 0; while (tracks[trackIdx] !== undefined && tracks[trackIdx] > startDecimal) { trackIdx++; } tracks[trackIdx] = endDecimal;
+                    return { ag, startDecimal, dur, endDecimal, trackIdx };
+                });
+                let heightTimeline = Math.max(1, tracks.length) * 80;
+                let ticksHtml = Array.from({length: TOTAL_HOURS + 1}).map((_, i) => `<div class="agenda-hour-tick">${START_HOUR + i}:00</div>`).join('');
+                let eventsHtml = renderEvents.map(e => {
+                    let left = Math.max(0, ((e.startDecimal - START_HOUR) / TOTAL_HOURS) * 100); let width = (e.dur / TOTAL_HOURS) * 100; let top = e.trackIdx * 80;
+                    if (left + width > 100) width = 100 - left;
+                    return `<div class="agenda-event-box" style="left: ${left}%; width: ${width}%; top: ${top}px; height: 72px;" onclick="confirmarRemoverAgendamento(${e.ag.id})"><strong style="font-size: 13px; display: block; margin-bottom: 2px;">⏰ ${e.ag.horaInicio || '--:--'} - ${e.ag.horaFim || '--:--'}</strong><div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">👤 ${e.ag.clienteNome || 'Desconhecido'}</div><div style="font-size: 10px; opacity:0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🏍️ ${e.ag.moto || '-'}</div><div style="font-size: 10px; opacity:0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🔧 ${e.ag.servico || '-'}</div></div>`;
+                }).join('');
+                container.innerHTML = `<div class="agenda-timeline-container"><div class="agenda-timeline-inner"><div class="agenda-header-hours">${ticksHtml}</div><div style="position: relative; height: ${heightTimeline}px;">${eventsHtml}</div></div></div><p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 15px;">* Clique em um bloco para cancelar o agendamento.</p>`;
+            } catch (error) { document.getElementById('container-timeline-agenda').innerHTML = '<div style="color:var(--danger); text-align:center; padding: 20px;">Erro ao carregar os agendamentos. Pode haver dados corrompidos.</div>'; }
+        }
+        function confirmarRemoverAgendamento(id) { document.getElementById('modalContent').innerHTML = `<h3 style="color:var(--danger);">Cancelar Agendamento?</h3><p>O horário voltará a ficar disponível.</p><div style="display:flex; gap:12px;"><button class="btn btn-secondary" onclick="fecharModal()">Voltar</button><button class="btn btn-danger btn-action-principal" onclick="removerAgendamento(${id})">Sim, Cancelar</button></div>`; document.getElementById('customModal').classList.add('show'); }
+        function removerAgendamento(id) { db.agendamentos = db.agendamentos.filter(a => a.id !== id); atualizarBancoDados(); renderizarAgendaDiaria(); fecharModal(); mostrarToast("Agendamento cancelado.", "var(--danger)"); }
+
+        document.addEventListener('click', function(e) { 
+            let configMenu = document.getElementById('config-menu'); 
+            let btnConfig = document.getElementById('btn-open-config'); 
+            if(configMenu && configMenu.classList.contains('show')) { 
+                if(!configMenu.contains(e.target) && (!btnConfig || !btnConfig.contains(e.target))) { 
+                    configMenu.classList.remove('show'); 
+                } 
+            } 
+        });
+        
+        /* Inteligência de Teclado Atualizada (ENTER / ESC) - CORRIGIDA */
+        window.addEventListener('keydown', e => { 
+            let modal = document.getElementById('customModal');
+            let configMenu = document.getElementById('config-menu');
+            let loginScreen = document.getElementById('login-screen');
+            
+            if(e.key === 'Escape') {
+                if(modal.classList.contains('show')) { fecharModal(); } 
+                else if(configMenu.classList.contains('show')) { toggleConfig(); }
+                else {
+                    if(!document.getElementById('sub-abrir-os').classList.contains('hidden')) voltarMenuClientes();
+                    else if(!document.getElementById('sub-acompanhar-os').classList.contains('hidden')) voltarMenuClientes();
+                    else if(!document.getElementById('sub-historico-os').classList.contains('hidden')) voltarMenuClientes();
+                }
+            } 
+            else if(e.key === 'Enter') {
+                if(document.activeElement && document.activeElement.tagName === 'TEXTAREA') return; 
+
+                // FIX: Checa se a tela de login está ativa para travar a ação nela
+                if(loginScreen && !loginScreen.classList.contains('hidden')) {
+                    if(document.activeElement.id === 'admin-user' || document.activeElement.id === 'admin-pass') {
+                        e.preventDefault();
+                        verificarLoginAdmin();
+                    }
+                    return; // Interrompe para evitar o clique fantasma
+                }
+                
+                if(modal.classList.contains('show')) {
+                    let btn = modal.querySelector('.btn-action-principal, .btn-success, .btn-primary'); 
+                    if(btn) { e.preventDefault(); btn.click(); }
+                } 
+                else if(configMenu.classList.contains('show')) {
+                    let btn = configMenu.querySelector('.btn-action-principal');
+                    if(btn) { e.preventDefault(); btn.click(); }
+                } 
+                else if(document.activeElement && document.activeElement.tagName === 'INPUT') {
+                    e.preventDefault();
+                    let activeBlock = document.activeElement.closest('.card, .os-section, .view-section') || document;
+                    let btn = activeBlock.querySelector('.btn-action-principal');
+                    if(btn) btn.click();
+                }
+            } 
+        });
+    </script>
+</body>
+</html>

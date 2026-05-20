@@ -1,0 +1,20 @@
+{
+  "name": "TorquePro - Gestão de Oficinas",
+  "short_name": "TorquePro",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1e1e1e",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "Icon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "Icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
